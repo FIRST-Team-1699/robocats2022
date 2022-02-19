@@ -1,10 +1,7 @@
 package frc.team1699.subsystems;
 
 import com.kauailabs.navx.frc.AHRS;
-import edu.wpi.first.wpilibj.SendableBase;
-import edu.wpi.first.wpilibj.Sendable;
-import edu.wpi.first.wpilibj.PIDSource;
-import edu.wpi.first.wpilibj.interfaces.Gyro;
+
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.controller.RamseteController;
 import edu.wpi.first.math.controller.SimpleMotorFeedforward;
