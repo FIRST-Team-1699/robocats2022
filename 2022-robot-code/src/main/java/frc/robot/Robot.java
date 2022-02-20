@@ -111,25 +111,32 @@ public class Robot extends TimedRobot {
 
     @Override
     public void teleopPeriodic() {
-        if(driveJoystick.getTriggerPressed()){
-            driveTrain.setWantedState(DriveTrain.DriveState.GOAL_TRACKING);
-        }else if(driveJoystick.getTriggerReleased()){
-            driveTrain.setWantedState(DriveTrain.DriveState.MANUAL);
-        }
 
-        if(opJoystick.getRawButtonPressed(7)){
-            ballProcessor.setWantedState(BallProcessor.BallProcessState.COLLECTING);
-        }else if(opJoystick.getRawButtonPressed(8)){
-            ballProcessor.setWantedState(BallProcessor.BallProcessState.SHOOTING);
-        }else if(opJoystick.getRawButtonPressed(9)){
-            ballProcessor.setWantedState(BallProcessor.BallProcessState.EMPTY);
-        }else if(opJoystick.getRawButtonPressed(10)){
-            ballProcessor.setWantedState(BallProcessor.BallProcessState.RETRACTING);
-        }
+      /*
+      
+      HEY THIS CODE IS LIKE RANDOM FUNCTIONALITY THAT WE AREN'T GONNA USE BUT I LEAVE IT FOR EXAMPLE
 
-        if(opJoystick.getRawButtonPressed(2)){
-            toggleSolenoid(shooterAngleSolenoid);
-        }
+      */
+      
+      // if(driveJoystick.getTriggerPressed()){
+      //       driveTrain.setWantedState(DriveTrain.DriveState.GOAL_TRACKING);
+      //   }else if(driveJoystick.getTriggerReleased()){
+      //       driveTrain.setWantedState(DriveTrain.DriveState.MANUAL);
+      //   }
+
+      //   if(opJoystick.getRawButtonPressed(7)){
+      //       ballProcessor.setWantedState(BallProcessor.BallProcessState.COLLECTING);
+      //   }else if(opJoystick.getRawButtonPressed(8)){
+      //       ballProcessor.setWantedState(BallProcessor.BallProcessState.SHOOTING);
+      //   }else if(opJoystick.getRawButtonPressed(9)){
+      //       ballProcessor.setWantedState(BallProcessor.BallProcessState.EMPTY);
+      //   }else if(opJoystick.getRawButtonPressed(10)){
+      //       ballProcessor.setWantedState(BallProcessor.BallProcessState.RETRACTING);
+      //   }
+
+      //   if(opJoystick.getRawButtonPressed(2)){
+      //       toggleSolenoid(shooterAngleSolenoid);
+      //   }
 
         driveTrain.update();
         intakeHopp.update();
