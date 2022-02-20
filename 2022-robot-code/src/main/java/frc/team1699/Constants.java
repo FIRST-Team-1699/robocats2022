@@ -1,6 +1,6 @@
 package frc.team1699;
 /*
-ADD IN THE NUMBERS I JUST PUT IN RANDOM NUMBERS
+TODO add in all of the constants numbers (ports)
 :)
 */
 public class Constants{
@@ -22,7 +22,7 @@ public class Constants{
     public static final int kStarDrivePort3 = 68;
 
     //Intake + Hopper Motor Port
-    public static final int kIntakePort = 11;
+    public static final int kIntakeHoppPort = 11;
 
     //Shooter Motor Ports
     public static final int kShooterPort = 16;
@@ -33,16 +33,11 @@ public class Constants{
     public static final int kIntakeSolenoidModulePort = 0;
     public static final int kIntakeSolenoidForwardPort = 0;
     public static final int kIntakeSolenoidReversePort = 1;
-
-    //IF THEY USE TWO SOLENOIDS FOR INTAKING
-    public static final int kIntakeSolenoidModule2Port = 3;
-    public static final int kIntakeSolenoidForward2Port = 3;
-    public static final int kIntakeSolenoidReverse2Port = 2;
     
     //Flopper Solenoid
-    public static final int kFlipperSolenoidModulePort = 0;
-    public static final int kFlipperSolenoidForwardPort = 4;
-    public static final int kFlipperSolenoidReversePort = 5;
+    public static final int kFlopperSolenoidModulePort = 0;
+    public static final int kFlopperSolenoidForwardPort = 4;
+    public static final int kFlopperSolenoidReversePort = 5;
 
     //Shooter Angle Solenoid
     public static final int kShooterAngleSolenoidModulePort = 0;
@@ -50,14 +45,14 @@ public class Constants{
     public static final int kShooterAngleSolenoidReversePort = 7;
 
     //Climber Solenoid Left
-    public static final int kLeftClimberModulePort = 0;
-    public static final int kLeftClimberForwardPort = 6;
-    public static final int kLeftClimberReversePort = 7;
+    public static final int kPortClimberModulePort = 0;
+    public static final int kPortClimberForwardPort = 6;
+    public static final int kPortClimberReversePort = 7;
 
     //Climber Solenoid Right
-    public static final int kRightClimberModulePort = 0;
-    public static final int kRightClimberForwardPort = 6;
-    public static final int kRightClimberReversePort = 7;
+    public static final int kStarClimberModulePort = 0;
+    public static final int kStarClimberForwardPort = 6;
+    public static final int kStarClimberReversePort = 7;
 
     
 }

@@ -1,12 +1,18 @@
 package frc.team1699.utils.controllers;
 
-public abstract class BetterSpeedController{
+import com.ctre.phoenix.motorcontrol.can.BaseTalon;
 
-	//TODO Populate
-	public BetterSpeedController(){
+public abstract class BetterSpeedController {
 
-	}
+    public BetterSpeedController() {
 
-	public abstract void set(final double percent);
-	public abstract double get();
+    }
+
+    public abstract void set(final double percent);
+
+    public abstract double get();
+
+    public BaseTalon getTalon() {
+        return null;
+    }
 }

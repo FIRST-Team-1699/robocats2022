@@ -2,6 +2,9 @@ package frc.team1699.utils.controllers;
 
 import java.util.Arrays;
 import java.util.List;
+
+import com.ctre.phoenix.motorcontrol.can.BaseTalon;
+
 import java.util.ArrayList;
 
 public class SpeedControllerGroup{
@@ -30,6 +33,9 @@ public class SpeedControllerGroup{
 
 	public double get(){
 		return this.master.get();
+	}
+	public BetterSpeedController getMaster(){
+		return master;
 	}
 
 	//TODO Figure out how to generalize talon motion control

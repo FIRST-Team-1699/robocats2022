@@ -1,7 +1,7 @@
 package frc.team1699.subsystems;
 
-import com.kauailabs.navx.frc.AHRS;
 
+import com.kauailabs.navx.frc.AHRS;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.controller.RamseteController;
 import edu.wpi.first.math.controller.SimpleMotorFeedforward;
