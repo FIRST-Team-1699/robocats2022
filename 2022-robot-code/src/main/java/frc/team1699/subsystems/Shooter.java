@@ -32,14 +32,21 @@ public class Shooter {
     private ShooterState currentState = ShooterState.UNINITIALIZED, wantedState;
     private HoodPosition currentPosition;
     private final DoubleSolenoid hoodSolenoid;
+    
+    //hoppaStoppa is the little flipper in our hopper on a double action solenoid that stops the balls from going into the shooter
+    //when it is deployed, the balls can't move through to the shooter
+    private final DoubleSolenoid hoppaStoppa;
+    public static boolean stopperDeployed = false;
+
     private double encoderRate;
 
     //TODO Add a constructor so we don't have to use a group?
     //TODO Might need to switch to two motors instead of one
-    public Shooter(final SpeedControllerGroup controllerGroup, final BetterEncoder encoder, final DoubleSolenoid hoodSolenoid) {
+    public Shooter(final SpeedControllerGroup controllerGroup, final BetterEncoder encoder, final DoubleSolenoid hoodSolenoid, final DoubleSolenoid hoppaStoppa) {
         this.controllerGroup = controllerGroup;
         this.encoder = encoder;
         this.hoodSolenoid = hoodSolenoid;
+        this.hoppaStoppa = hoppaStoppa;
         this.currentPosition = HoodPosition.DOWN;
 
       //  this.beamBreak = beamBreak;
@@ -141,7 +148,7 @@ public class Shooter {
         } else {
             return false;
         }
-    }
+    }  
     public void hoodUp(){
         if (isHoodUp()){
             return;
@@ -157,6 +164,22 @@ public class Shooter {
             hoodSolenoid.toggle();
             currentPosition = HoodPosition.DOWN;
         }
+    }
+
+    //methods for the hopper stopper! they public so they can be used in the ball processor
+    public void toggleHopperStopper() {
+        hoppaStoppa.toggle();
+        stopperDeployed = !stopperDeployed;
+    }
+
+    public void deployHopperStopper() {
+        hoppaStoppa.set(DoubleSolenoid.Value.kForward);
+        stopperDeployed = true;
+    }
+
+    public void retractHopperStopper() {
+        hoppaStoppa.set(DoubleSolenoid.Value.kReverse);
+        stopperDeployed = false;
     }
 
 

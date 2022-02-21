@@ -26,7 +26,7 @@ import java.nio.file.Path;
 public class Robot extends TimedRobot {
 
     private Joystick driveJoystick, opJoystick;
-    public static final PneumaticsModuleType CTREPCM;
+    public PneumaticsModuleType CTREPCM;
     private DriveTrain driveTrain;
     private IntakeHopper intakeHopp;
     private Shooter shooter;
@@ -88,7 +88,7 @@ public class Robot extends TimedRobot {
         SpeedControllerGroup shooterGroup = new SpeedControllerGroup(shooterTalonPort, shooterTalonStar);
         portShooterEncoder = new TalonEncoder(shooterTalonPort);
         intakeHopp = new IntakeHopper(intakeSolenoid, intakeHoppTalon);
-        shooter = new Shooter(shooterGroup, portShooterEncoder, shooterBreak);
+        shooter = new Shooter(shooterGroup, portShooterEncoder, shooterAngleSolenoid, hopperStopper);
         ballProcessor = new BallProcessor(shooter, intakeHopp);
     }
 
@@ -140,7 +140,7 @@ public class Robot extends TimedRobot {
 
         driveTrain.update();
         intakeHopp.update();
-        shooter.update(portShooterEncoder.get());
+        shooter.update();
         ballProcessor.update();
     }
 

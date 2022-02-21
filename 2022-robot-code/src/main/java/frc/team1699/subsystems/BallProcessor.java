@@ -1,5 +1,6 @@
 package frc.team1699.subsystems;
 
+
 public class BallProcessor {
     //them's're the states
     //unites states of ameri-cats
@@ -17,13 +18,39 @@ public class BallProcessor {
     private BallProcessState wantedState;
     private BallProcessState currentState;
 
-    public BallProcessor(final Shooter shooter, final IntakeHopper intakehopp) {
+    public BallProcessor(final Shooter shooter, final IntakeHopper intakeHopp) {
         this.shooter = shooter;
-        this.intakeHopp = intakehopp;
+        this.intakeHopp = intakeHopp;
     }
 
+    //woah look its the update method! it gets run e'ry periodic update!
+    public void update() {
+        //yeah so if ur already doing the thing u wanna do, u dont gotta change!
+        if (currentState == wantedState) {
+            return;
+        }
+        switch(wantedState){
+            case INIT:
+            break;
 
+            case EMPTY:
+            break;
 
+            case COLLECTING:
+            break;
+
+            case RETRACTING:
+
+            case LOADED:
+            break;
+
+            case AIM:
+            break;
+
+            case SHOOTING:
+            break;
+        }
+    }
 
     public BallProcessState getWantedState() {
         return wantedState;

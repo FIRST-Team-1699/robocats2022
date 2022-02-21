@@ -13,13 +13,11 @@ public class IntakeHopper implements Subsystem {
 
     private final DoubleSolenoid solenoid;
     private final BetterTalon speedController;
-    private final DoubleSolenoid hoppaStoppa;
 
-    public IntakeHopper(final DoubleSolenoid solenoid, final BetterTalon speedController, final DoubleSolenoid hoppaStoppa) {
+    public IntakeHopper(final DoubleSolenoid solenoid, final BetterTalon speedController) {
         wantedState = IntakeStates.STORED;
         this.solenoid = solenoid;
         this.speedController = speedController;
-        this.hoppaStoppa = hoppaStoppa;
     }
 
     public void update() {
@@ -33,20 +31,28 @@ public class IntakeHopper implements Subsystem {
             //Store intake and turn off intake wheels
             solenoid.set(DoubleSolenoid.Value.kReverse); //TODO Check direction
             speedController.set(0.0);
+
             currentState = wantedState;
+
         } else if (wantedState == IntakeStates.DEPLOYED) {
             //Deploy intake and turn on intake wheels
             solenoid.set(DoubleSolenoid.Value.kForward); //TODO Check direction
             speedController.set(kIntakeSpeed);
+
             currentState = wantedState;
+
         } else if (wantedState == IntakeStates.RUNHOP){
             //if u want the hopper to run while the intake arm is up (indexing i guess??)
             solenoid.set(DoubleSolenoid.Value.kReverse); //TODO Check direction
             speedController.set(kIntakeSpeed);
+
             currentState = wantedState;
+
         } else if (wantedState == IntakeStates.BACKDRIVE){
             solenoid.set(DoubleSolenoid.Value.kReverse); //TODO Check direction
             speedController.set(-kIntakeSpeed);
+
+            currentState = wantedState;
         }
     }
 

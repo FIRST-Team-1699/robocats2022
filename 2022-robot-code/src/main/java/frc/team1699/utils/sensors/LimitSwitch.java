@@ -23,6 +23,6 @@ public class LimitSwitch {
     }
     public void printValue(){
         
-    System.out.println("Limit value: " +lswitch.get());
+   // System.out.println("Limit value: " +lswitch.get());
     }
 }
