@@ -1,9 +1,9 @@
 package frc.team1699.subsystems;
 
+import frc.team1699.utils.controllers.SpeedControllerGroup;
 
 public class BallProcessor {
-    //them's're the states
-    //unites states of ameri-cats
+
     public enum BallProcessState {
         INIT, //started
         EMPTY, //no balls and no hopper spin

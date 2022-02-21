@@ -5,7 +5,7 @@ import frc.team1699.utils.controllers.talon.BetterTalon;
 
 public class IntakeHopper implements Subsystem {
 
-    public static final double kIntakeSpeed = 0.5; //TODO Give value
+    public static final double kIntakeSpeed = 0.50;
 
     //Start the system in an uninitialized state and set a wanted state
     private IntakeStates currentState = null;
@@ -21,35 +21,40 @@ public class IntakeHopper implements Subsystem {
     }
 
     public void update() {
+
         //We do not have to change states
         if (currentState == wantedState) {
             return;
         }
 
-        //TODO Might need to wait for wheels to stop and solenoid to deploy
         if (wantedState == IntakeStates.STORED) {
+
             //Store intake and turn off intake wheels
-            solenoid.set(DoubleSolenoid.Value.kReverse); //TODO Check direction
+            solenoid.set(DoubleSolenoid.Value.kReverse);
             speedController.set(0.0);
 
             currentState = wantedState;
 
         } else if (wantedState == IntakeStates.DEPLOYED) {
+
             //Deploy intake and turn on intake wheels
-            solenoid.set(DoubleSolenoid.Value.kForward); //TODO Check direction
+            solenoid.set(DoubleSolenoid.Value.kForward);
             speedController.set(kIntakeSpeed);
 
             currentState = wantedState;
 
         } else if (wantedState == IntakeStates.RUNHOP){
+
             //if u want the hopper to run while the intake arm is up (indexing i guess??)
-            solenoid.set(DoubleSolenoid.Value.kReverse); //TODO Check direction
+            solenoid.set(DoubleSolenoid.Value.kReverse);
             speedController.set(kIntakeSpeed);
 
             currentState = wantedState;
 
         } else if (wantedState == IntakeStates.BACKDRIVE){
-            solenoid.set(DoubleSolenoid.Value.kReverse); //TODO Check direction
+
+            //poop out balls
+            solenoid.set(DoubleSolenoid.Value.kReverse);
             speedController.set(-kIntakeSpeed);
 
             currentState = wantedState;

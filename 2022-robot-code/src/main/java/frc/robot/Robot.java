@@ -46,7 +46,6 @@ public class Robot extends TimedRobot {
         driveJoystick = new Joystick(0);
         opJoystick = new Joystick(1);
 
-        //TODO Fix ports
         //Setup port drive motors
         portDriveMaster = new BetterFalcon(Constants.kPortDrivePort1);
         portDriveFollower1 = new BetterFalcon(Constants.kPortDrivePort2);

@@ -9,6 +9,7 @@ import java.util.ArrayList;
 
 public class SpeedControllerGroup{
 
+	private boolean followerReversed = false;
 	private BetterSpeedController master;
 	private List<BetterSpeedController> controllers;
 
@@ -23,11 +24,14 @@ public class SpeedControllerGroup{
 		this.controllers.addAll(Arrays.asList(controllers));
 	}
 
-	//TODO Need to convert to use voltage instead of percent
 	public void set(final double percent){
 		this.master.set(percent);
 		for(BetterSpeedController controller : controllers){
-			controller.set(percent);
+			if (followerReversed){
+				controller.set(-1*percent);
+			} else {
+				controller.set(percent);
+			}
 		}
 	}
 
@@ -36,6 +40,11 @@ public class SpeedControllerGroup{
 	}
 	public BetterSpeedController getMaster(){
 		return master;
+	}
+
+	//a simple method to make all followers spin backwards. this is for the 2022 shooter design specifically
+	public void setFollowerReversed() {
+		followerReversed = true;
 	}
 
 	//TODO Figure out how to generalize talon motion control

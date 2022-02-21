@@ -6,6 +6,7 @@ import frc.team1699.utils.controllers.SpeedControllerGroup;
 //import frc.team1699.utils.sensors.BeamBreak;
 import frc.team1699.utils.sensors.BetterEncoder;
 import frc.team1699.utils.sensors.LimitSwitch;
+import frc.team1699.utils.controllers.talon.BetterTalon;
 
 //TODO Fix
 //public class Shooter implements Subsystem{
@@ -26,14 +27,15 @@ public class Shooter {
     private final SpeedControllerGroup controllerGroup;
     private final BetterEncoder encoder;
  //   private final LimitSwitch beamBreak;
+    
     double lastError = 0.0;
     double filteredGoal = 0.0;
-    private double goal = 0.0; //TODO Figure out units
+    private double goal = 0.0;
     private ShooterState currentState = ShooterState.UNINITIALIZED, wantedState;
     private HoodPosition currentPosition;
     private final DoubleSolenoid hoodSolenoid;
     
-    //hoppaStoppa is the little flipper in our hopper on a double action solenoid that stops the balls from going into the shooter
+    //hoppaStoppa is the flipper in the hopper on a double action solenoid that stops the balls from going into the shooter
     //when it is deployed, the balls can't move through to the shooter
     private final DoubleSolenoid hoppaStoppa;
     public static boolean stopperDeployed = false;
@@ -41,13 +43,14 @@ public class Shooter {
     private double encoderRate;
 
     //TODO Add a constructor so we don't have to use a group?
-    //TODO Might need to switch to two motors instead of one
     public Shooter(final SpeedControllerGroup controllerGroup, final BetterEncoder encoder, final DoubleSolenoid hoodSolenoid, final DoubleSolenoid hoppaStoppa) {
         this.controllerGroup = controllerGroup;
         this.encoder = encoder;
         this.hoodSolenoid = hoodSolenoid;
         this.hoppaStoppa = hoppaStoppa;
         this.currentPosition = HoodPosition.DOWN;
+        
+        controllerGroup.setFollowerReversed();
 
       //  this.beamBreak = beamBreak;
     }
@@ -58,21 +61,25 @@ public class Shooter {
             case UNINITIALIZED:
                 currentState = ShooterState.RUNNING;
                 filteredGoal = encoderRate;
-               
+                deployHopperStopper();
                 break;
+
             case RUNNING:
                 filteredGoal = goal;
                 break;
+
             case SHOOT:
                 filteredGoal = goal;
                 if (atGoal()) {
-                    //TODO make the thing do shoot
+                    
                 }
                 break;
+
             case STOPPED:
                 filteredGoal = 0.0;
                 controllerGroup.set(0.0);
                 return;
+
             default:
                 currentState = ShooterState.UNINITIALIZED;
                 break;
