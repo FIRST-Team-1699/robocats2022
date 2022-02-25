@@ -2,11 +2,10 @@ package frc.team1699.subsystems;
 
 import edu.wpi.first.wpilibj.DoubleSolenoid;
 import frc.team1699.utils.Utils;
-import frc.team1699.utils.controllers.SpeedControllerGroup;
 //import frc.team1699.utils.sensors.BeamBreak;
-import frc.team1699.utils.sensors.BetterEncoder;
 import frc.team1699.utils.sensors.LimitSwitch;
-import frc.team1699.utils.controllers.talon.BetterTalon;
+import com.ctre.phoenix.motorcontrol.can.TalonSRX;
+import com.ctre.phoenix.motorcontrol.TalonSRXControlMode;
 
 //TODO Fix
 //public class Shooter implements Subsystem{
@@ -24,8 +23,6 @@ public class Shooter {
     //Control loop constants
     static final double Kp = 40.0;
     static final double Kv = 0.01;
-    private final SpeedControllerGroup controllerGroup;
-    private final BetterEncoder encoder;
  //   private final LimitSwitch beamBreak;
     
     double lastError = 0.0;
@@ -41,22 +38,26 @@ public class Shooter {
     public static boolean stopperDeployed = false;
 
     private double encoderRate;
+    private TalonSRX shooterMotorPort;
+    private TalonSRX shooterMotorStar;
+    private TalonSRXControlMode TalonSRXControlMode;
 
-    //TODO Add a constructor so we don't have to use a group?
-    public Shooter(final SpeedControllerGroup controllerGroup, final BetterEncoder encoder, final DoubleSolenoid hoodSolenoid, final DoubleSolenoid hoppaStoppa) {
-        this.controllerGroup = controllerGroup;
-        this.encoder = encoder;
+    public Shooter(final TalonSRX portMotor, final TalonSRX starMotor, final DoubleSolenoid hoodSolenoid, final DoubleSolenoid hoppaStoppa) {
+        this.shooterMotorPort = starMotor;
+        this.shooterMotorStar = portMotor;
         this.hoodSolenoid = hoodSolenoid;
-        this.hoppaStoppa = hoppaStoppa;
+        this.hoppaStoppa = hoppaStoppa; // HOPPER STOPPER
         this.currentPosition = HoodPosition.DOWN;
         
-        controllerGroup.setFollowerReversed();
+        starMotor.setInverted(true); //TODO check which one of these should be inverted
+        starMotor.setSensorPhase(true); // i think this flips the encoder but frankly im not sure
+
 
       //  this.beamBreak = beamBreak;
     }
 
     public void update() {
-        encoderRate = encoder.getRate();
+        encoderRate = shooterMotorPort.getSelectedSensorVelocity(); ;//TODO see if the encoders are both the right direction so we can average them together.
         switch (currentState) {
             case UNINITIALIZED:
                 currentState = ShooterState.RUNNING;
@@ -93,7 +94,7 @@ public class Shooter {
         final double maxVoltage = currentState == ShooterState.RUNNING ? kMaxVoltage : kMaxZeroingVoltage;
 
         if (voltage >= maxVoltage) {
-            controllerGroup.set(Math.min(voltage, maxVoltage));
+            shooterMotorPort.set(TalonSRXControlMode.Current, Math.min(voltage, maxVoltage));
         } else {
             controllerGroup.set(Math.max(voltage, -maxVoltage));
         }
