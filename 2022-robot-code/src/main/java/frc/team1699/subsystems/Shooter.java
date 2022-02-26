@@ -5,32 +5,34 @@ import frc.team1699.utils.Utils;
 //import frc.team1699.utils.sensors.BeamBreak;
 import frc.team1699.utils.sensors.LimitSwitch;
 import com.ctre.phoenix.motorcontrol.can.TalonSRX;
+import com.ctre.phoenix.motorcontrol.InvertType;
 import com.ctre.phoenix.motorcontrol.TalonSRXControlMode;
 
 //TODO Fix
-//public class Shooter implements Subsystem{
+//public class Shooter implements Subsystem{ 
 public class Shooter {
 
-    static final double kDt = 0.05;
-    //Max Velocity
-    static final double kMaxVelocity = 2.0;
-    //Min Velocity
-    static final double kMinVelocity = 0.0;
-    //Max voltage to be applied
-    static final double kMaxVoltage = 12.0;
-    //Max voltage when zeroing
-    static final double kMaxZeroingVoltage = 4.0;
     //Control loop constants
-    static final double Kp = 40.0;
-    static final double Kv = 0.01;
- //   private final LimitSwitch beamBreak;
+    static final int kP = 0;
+    static final int kI = 0;
+    static final int kD = 0;
+    static final int kF = 0;
+
+    //error variables
+    int kErrThreshold = 10; // how many sensor units until its close-enough
+    int kLoopsToSettle = 5; // how many loops sensor must be close-enough
+    int _withinThresholdLoops = 0; //counter for error threshold
+
+    static final int kPIDLoopIDX = 0; //just leave this at 0 its for if u want more than 1 loop
     
-    double lastError = 0.0;
-    double filteredGoal = 0.0;
+    private double targetVelocity_UnitsPer100ms = 0.0;
+
     private double goal = 0.0;
     private ShooterState currentState = ShooterState.UNINITIALIZED, wantedState;
     private HoodPosition currentPosition;
     private final DoubleSolenoid hoodSolenoid;
+
+    private final int kTimeoutMs = 30;
     
     //hoppaStoppa is the flipper in the hopper on a double action solenoid that stops the balls from going into the shooter
     //when it is deployed, the balls can't move through to the shooter
@@ -46,71 +48,79 @@ public class Shooter {
         this.shooterMotorPort = starMotor;
         this.shooterMotorStar = portMotor;
         this.hoodSolenoid = hoodSolenoid;
-        this.hoppaStoppa = hoppaStoppa; // HOPPER STOPPER
+        this.hoppaStoppa = hoppaStoppa; //this is the hopper stopper, the stopper in the hopper. its stops the balls. NO I WILL NOT CHANGE ITS NAME.
         this.currentPosition = HoodPosition.DOWN;
         
-        starMotor.setInverted(true); //TODO check which one of these should be inverted
-        starMotor.setSensorPhase(true); // i think this flips the encoder but frankly im not sure
+
+        starMotor.setInverted(true);
+        portMotor.follow(starMotor);
+        portMotor.setInverted(InvertType.OpposeMaster);
+        starMotor.setSensorPhase(false); //TODO check direction
+
+
+        starMotor.configNominalOutputForward(0, kTimeoutMs);
+        starMotor.configNominalOutputReverse(0, kTimeoutMs);
+        starMotor.configPeakOutputForward(1, kTimeoutMs);
+        starMotor.configPeakOutputReverse(-1, kTimeoutMs);
+
+        starMotor.config_kP(kPIDLoopIDX, kP, kTimeoutMs);
+        starMotor.config_kI(kPIDLoopIDX, kI, kTimeoutMs);
+        starMotor.config_kD(kPIDLoopIDX, kD, kTimeoutMs);
+        starMotor.config_kF(kPIDLoopIDX, kF, kTimeoutMs);
 
 
       //  this.beamBreak = beamBreak;
     }
 
+        /* Checks if the motor has reached the target velocity.*/
+    private void checkErr() {
+        if (shooterMotorStar.getClosedLoopError() < +kErrThreshold &&
+            shooterMotorStar.getClosedLoopError() > -kErrThreshold) {
+
+            ++_withinThresholdLoops;
+        } else {
+            _withinThresholdLoops = 0;
+            }
+        }
+
     public void update() {
-        encoderRate = shooterMotorPort.getSelectedSensorVelocity(); ;//TODO see if the encoders are both the right direction so we can average them together.
+        
         switch (currentState) {
             case UNINITIALIZED:
                 currentState = ShooterState.RUNNING;
-                filteredGoal = encoderRate;
+
                 deployHopperStopper();
                 break;
 
             case RUNNING:
-                filteredGoal = goal;
+
                 break;
 
             case SHOOT:
-                filteredGoal = goal;
+
                 if (atGoal()) {
                     
                 }
                 break;
 
             case STOPPED:
-                filteredGoal = 0.0;
-                controllerGroup.set(0.0);
+
+                shooterMotorPort.set(TalonSRXControlMode.PercentOutput, 0.0);
                 return;
 
             default:
                 currentState = ShooterState.UNINITIALIZED;
                 break;
         }
-
-        final double error = filteredGoal - encoderRate;
-        final double vel = (error - lastError) / kDt;
-        lastError = error;
-        final double voltage = Kp * error + Kv * vel;
-
-        final double maxVoltage = currentState == ShooterState.RUNNING ? kMaxVoltage : kMaxZeroingVoltage;
-
-        if (voltage >= maxVoltage) {
-            shooterMotorPort.set(TalonSRXControlMode.Current, Math.min(voltage, maxVoltage));
-        } else {
-            controllerGroup.set(Math.max(voltage, -maxVoltage));
-        }
-    }
-
-    public double getGoal() {
-        return goal;
-    }
-
-    public void setGoal(final double goal) {
-        this.goal = goal;
     }
 
     public void setWantedState(final ShooterState wantedState) {
         this.wantedState = wantedState;
         handleStateTransition(wantedState);
+    }
+
+    public boolean reachedGoal() {
+        return (_withinThresholdLoops > kLoopsToSettle);
     }
 
     private void handleStateTransition(final ShooterState wantedState){
@@ -136,10 +146,7 @@ public class Shooter {
      *
      * @return True if we have reached the target velocity, false otherwise
      */
-    public boolean atGoal() {
-        //TODO Check tolerance
-        return Utils.epsilonEquals(lastError, 0, 10.0);
-    }
+
     
     //make the hood do stuff
     public void toggleHood() {
