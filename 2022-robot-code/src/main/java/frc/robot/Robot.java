@@ -16,7 +16,6 @@ import frc.team1699.subsystems.Shooter;
 import com.ctre.phoenix.motorcontrol.can.TalonSRX;
 import com.ctre.phoenix.motorcontrol.can.TalonFX;
 import frc.team1699.utils.sensors.LimitSwitch;
-import frc.team1699.utils.sensors.TalonEncoder;
 
 
 public class Robot extends TimedRobot {
@@ -33,7 +32,6 @@ public class Robot extends TimedRobot {
     private DoubleSolenoid intakeSolenoid, hopperStopper, shooterAngleSolenoid, climberSolenoidPort, climberSolenoidStar;
     //private AdaFruitBeamBreak intakeBreak, hopperBreak;
     private LimitSwitch shooterBreak;
-    private TalonEncoder portShooterEncoder, starShooterEncoder;
 
     @Override
     public void robotInit() {
