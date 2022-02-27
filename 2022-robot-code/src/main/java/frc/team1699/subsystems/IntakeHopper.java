@@ -1,7 +1,8 @@
 package frc.team1699.subsystems;
 
 import edu.wpi.first.wpilibj.DoubleSolenoid;
-import frc.team1699.utils.controllers.talon.BetterTalon;
+import com.ctre.phoenix.motorcontrol.can.TalonSRX;
+import com.ctre.phoenix.motorcontrol.TalonSRXControlMode;
 
 public class IntakeHopper implements Subsystem {
 
@@ -12,9 +13,9 @@ public class IntakeHopper implements Subsystem {
     private IntakeStates wantedState;
 
     private final DoubleSolenoid solenoid;
-    private final BetterTalon speedController;
+    private final TalonSRX speedController;
 
-    public IntakeHopper(final DoubleSolenoid solenoid, final BetterTalon speedController) {
+    public IntakeHopper(final DoubleSolenoid solenoid, final TalonSRX speedController) {
         wantedState = IntakeStates.STORED;
         this.solenoid = solenoid;
         this.speedController = speedController;
@@ -31,7 +32,7 @@ public class IntakeHopper implements Subsystem {
 
             //Store intake and turn off intake wheels
             solenoid.set(DoubleSolenoid.Value.kReverse);
-            speedController.set(0.0);
+            speedController.set(TalonSRXControlMode.PercentOutput, 0);
 
             currentState = wantedState;
 
@@ -39,7 +40,7 @@ public class IntakeHopper implements Subsystem {
 
             //Deploy intake and turn on intake wheels
             solenoid.set(DoubleSolenoid.Value.kForward);
-            speedController.set(kIntakeSpeed);
+            speedController.set(TalonSRXControlMode.PercentOutput, kIntakeSpeed);
 
             currentState = wantedState;
 
@@ -47,7 +48,7 @@ public class IntakeHopper implements Subsystem {
 
             //if u want the hopper to run while the intake arm is up (indexing i guess??)
             solenoid.set(DoubleSolenoid.Value.kReverse);
-            speedController.set(kIntakeSpeed);
+            speedController.set(TalonSRXControlMode.PercentOutput, kIntakeSpeed);
 
             currentState = wantedState;
 
@@ -55,7 +56,7 @@ public class IntakeHopper implements Subsystem {
 
             //poop out balls
             solenoid.set(DoubleSolenoid.Value.kReverse);
-            speedController.set(-kIntakeSpeed);
+            speedController.set(TalonSRXControlMode.PercentOutput, -kIntakeSpeed);
 
             currentState = wantedState;
         }

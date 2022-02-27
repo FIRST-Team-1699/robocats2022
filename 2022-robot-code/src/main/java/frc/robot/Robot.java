@@ -13,27 +13,22 @@ import frc.team1699.subsystems.BallProcessor;
 import frc.team1699.subsystems.DriveTrain;
 import frc.team1699.subsystems.IntakeHopper;
 import frc.team1699.subsystems.Shooter;
-import frc.team1699.utils.controllers.SpeedControllerGroup;
-import frc.team1699.utils.controllers.falcon.BetterFalcon;
-import frc.team1699.utils.controllers.talon.BetterTalon;
-//import frc.team1699.utils.sensors.AdaFruitBeamBreak;
+import com.ctre.phoenix.motorcontrol.can.TalonSRX;
+import com.ctre.phoenix.motorcontrol.can.TalonFX;
 import frc.team1699.utils.sensors.LimitSwitch;
 import frc.team1699.utils.sensors.TalonEncoder;
 
-import java.io.IOException;
-import java.nio.file.Path;
 
 public class Robot extends TimedRobot {
 
     private Joystick driveJoystick, opJoystick;
-    public PneumaticsModuleType CTREPCM;
+    public PneumaticsModuleType CTREPCM = PneumaticsModuleType.CTREPCM;
     private DriveTrain driveTrain;
     private IntakeHopper intakeHopp;
     private Shooter shooter;
     private BallProcessor ballProcessor;
-    private BetterTalon intakeHoppTalon, shooterTalonPort, shooterTalonStar, hopperTalon, talon1, talon4;
-    private BetterFalcon portDriveMaster, portDriveFollower1, portDriveFollower2, starDriveMaster, starDriveFollower1, starDriveFollower2;
-    private SpeedControllerGroup portDriveGroup, starDriveGroup;
+    private TalonSRX intakeHoppTalon, shooterTalonPort, shooterTalonStar, hopperTalon;
+    private TalonFX portDriveMaster, portDriveFollower1, portDriveFollower2, starDriveMaster, starDriveFollower1, starDriveFollower2;
     private Compressor compressor;
     private DoubleSolenoid intakeSolenoid, hopperStopper, shooterAngleSolenoid, climberSolenoidPort, climberSolenoidStar;
     //private AdaFruitBeamBreak intakeBreak, hopperBreak;
@@ -46,27 +41,26 @@ public class Robot extends TimedRobot {
         driveJoystick = new Joystick(0);
         opJoystick = new Joystick(1);
 
-        //Setup port drive motors
-        portDriveMaster = new BetterFalcon(Constants.kPortDrivePort1);
-        portDriveFollower1 = new BetterFalcon(Constants.kPortDrivePort2);
-        portDriveFollower2 = new BetterFalcon(Constants.kPortDrivePort3);
-        portDriveGroup = new SpeedControllerGroup(portDriveMaster, portDriveFollower1, portDriveFollower2);
+        //Setup port drive motors. they get follower'd in the drivetrain class
+        portDriveMaster = new TalonFX(Constants.kPortDrivePort1);
+        portDriveFollower1 = new TalonFX(Constants.kPortDrivePort2);
+        portDriveFollower2 = new TalonFX(Constants.kPortDrivePort3);
+        
 
         //Setup starboard drive motors
-        starDriveMaster = new BetterFalcon(Constants.kStarDrivePort1);
-        starDriveFollower1 = new BetterFalcon(Constants.kStarDrivePort2);
-        starDriveFollower2 = new BetterFalcon(Constants.kStarDrivePort3);
-        starDriveGroup = new SpeedControllerGroup(starDriveMaster, starDriveFollower1, starDriveFollower2);
+        starDriveMaster = new TalonFX(Constants.kStarDrivePort1);
+        starDriveFollower1 = new TalonFX(Constants.kStarDrivePort2);
+        starDriveFollower2 = new TalonFX(Constants.kStarDrivePort3);
 
         //Setup drive train
-        driveTrain = new DriveTrain(portDriveGroup, starDriveGroup, driveJoystick);
+        driveTrain = new DriveTrain(portDriveMaster, portDriveFollower1, portDriveFollower2, starDriveMaster, starDriveFollower1, starDriveFollower2, driveJoystick);
 
         //Setup intake motor
-        intakeHoppTalon = new BetterTalon(Constants.kIntakeHoppPort);
+        intakeHoppTalon = new TalonSRX(Constants.kIntakeHoppPort);
 
         //Setup shooter motors
-        shooterTalonPort = new BetterTalon(16);
-        shooterTalonStar = new BetterTalon(12);
+        shooterTalonPort = new TalonSRX(Constants.kPortShooterPort);
+        shooterTalonStar = new TalonSRX(Constants.kStarShooterPort);
 
 
         //Setup solenoids
@@ -76,18 +70,13 @@ public class Robot extends TimedRobot {
         climberSolenoidPort = new DoubleSolenoid(Constants.kPortClimberModulePort, CTREPCM, Constants.kPortClimberForwardPort, Constants.kPortClimberReversePort);
         climberSolenoidStar = new DoubleSolenoid(Constants.kStarClimberModulePort, CTREPCM, Constants.kStarClimberForwardPort, Constants.kStarClimberReversePort);
 
-        //Setup sensors
-//        intakeBreak = new AdaFruitBeamBreak(0);
-//        hopperBreak = new AdaFruitBeamBreak(2);
-       // intakeBreak = null;
-      //  hopperBreak = null;
-     //   shooterBreak = new LimitSwitch(1);
+        //Setup sensors 
+        //LOL WE DONT HAVE ANY SENSORS
 
-        //Setup ball transfer
-        SpeedControllerGroup shooterGroup = new SpeedControllerGroup(shooterTalonPort, shooterTalonStar);
-        portShooterEncoder = new TalonEncoder(shooterTalonPort);
+
+        //Setup ball transfer thingies
         intakeHopp = new IntakeHopper(intakeSolenoid, intakeHoppTalon);
-        shooter = new Shooter(shooterGroup, portShooterEncoder, shooterAngleSolenoid, hopperStopper);
+        shooter = new Shooter(shooterTalonPort, shooterTalonStar, shooterAngleSolenoid, hopperStopper);
         ballProcessor = new BallProcessor(shooter, intakeHopp);
     }
 
@@ -149,55 +138,12 @@ public class Robot extends TimedRobot {
     }
 
     private void runTest(){
-        if(driveJoystick.getTrigger()){
-            intakeHoppTalon.set(-0.5);
-        }else{
-            intakeHoppTalon.set(0.0);
-        }
 
-        if(driveJoystick.getRawButton(2)){
-            shooterTalonPort.set(0.65);
-        }else{
-            shooterTalonPort.set(0.0);
-        }
-
-        if(driveJoystick.getRawButton(3)){
-            talon1.set(0.5);
-        }else{
-            talon1.set(0.0);
-        }
-
-        if(driveJoystick.getRawButton(4)){
-            shooterTalonStar.set(0.55);
-        }else{
-            shooterTalonStar.set(0.0);
-        }
-
-        if(driveJoystick.getRawButton(5)){
-            hopperTalon.set(-0.5);
-        }else{
-            hopperTalon.set(0.0);
-        }
-
-        if(driveJoystick.getRawButton(6)){
-            talon4.set(0.5);
-        }else{
-            talon4.set(0.0);
-        }
-        
         // Buttons linked to stuff goes here
         //ex:
         // if(driveJoystick.getRawButtonPressed(7)){
         //     toggleSolenoid(intakeSolenoid);
         // }
 
-    }
-
-    private void toggleSolenoid(final DoubleSolenoid solenoid){
-        if(solenoid.get() == DoubleSolenoid.Value.kForward){
-            solenoid.set(DoubleSolenoid.Value.kReverse);
-        }else{
-            solenoid.set(DoubleSolenoid.Value.kForward);
-        }
     }
 }

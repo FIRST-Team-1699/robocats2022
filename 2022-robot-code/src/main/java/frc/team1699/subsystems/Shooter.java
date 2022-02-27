@@ -98,9 +98,6 @@ public class Shooter {
 
             case SHOOT:
 
-                if (atGoal()) {
-                    
-                }
                 break;
 
             case STOPPED:
