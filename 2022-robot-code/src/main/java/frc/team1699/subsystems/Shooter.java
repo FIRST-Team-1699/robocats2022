@@ -10,6 +10,7 @@ import com.ctre.phoenix.motorcontrol.TalonSRXControlMode;
 //public class Shooter implements Subsystem{ 
 public class Shooter {
 
+    //TODO numbers
     //Control loop constants
     static final int kP = 0;
     static final int kI = 0;
@@ -17,15 +18,18 @@ public class Shooter {
     static final int kF = 0;
 
     //error variables
-    int kErrThreshold = 10; // how many sensor units until its close-enough
-    int kLoopsToSettle = 5; // how many loops sensor must be close-enough
-    int _withinThresholdLoops = 0; //counter for error threshold
+    int kErrThreshold = 30; // how many sensor units until its close-enough
 
     static final int kPIDLoopIDX = 0; //just leave this at 0 its for if u want more than 1 loop
     
     private double targetVelocity_UnitsPer100ms = 0.0;
 
-    private double goal = 0.0;
+    private double idle_UnitsPer100ms = 500.0; //target velocity when its "running"
+    private double shooting_UnitsPer100ms = 2000.0; //the target velocity while shooting
+
+    public boolean shooterAtSpeed = false;
+    private int atSpeedTicks = 0;
+
     private ShooterState currentState = ShooterState.UNINITIALIZED, wantedState;
     private HoodPosition currentPosition;
     private final DoubleSolenoid hoodSolenoid;
@@ -37,7 +41,6 @@ public class Shooter {
     private final DoubleSolenoid hoppaStoppa;
     public static boolean stopperDeployed = false;
 
-    private double encoderRate;
     private TalonSRX shooterMotorPort;
     private TalonSRX shooterMotorStar;
     private TalonSRXControlMode TalonSRXControlMode;
@@ -53,7 +56,7 @@ public class Shooter {
         starMotor.setInverted(true);
         portMotor.follow(starMotor);
         portMotor.setInverted(InvertType.OpposeMaster);
-        starMotor.setSensorPhase(false); //TODO check direction
+        starMotor.setSensorPhase(true); //TODO check direction
 
 
         starMotor.configNominalOutputForward(0, kTimeoutMs);
@@ -66,28 +69,16 @@ public class Shooter {
         starMotor.config_kD(kPIDLoopIDX, kD, kTimeoutMs);
         starMotor.config_kF(kPIDLoopIDX, kF, kTimeoutMs);
 
-
-      //  this.beamBreak = beamBreak;
     }
-
-        /* Checks if the motor has reached the target velocity.*/
-    private void checkErr() {
-        if (shooterMotorStar.getClosedLoopError() < +kErrThreshold &&
-            shooterMotorStar.getClosedLoopError() > -kErrThreshold) {
-
-            ++_withinThresholdLoops;
-        } else {
-            _withinThresholdLoops = 0;
-            }
-        }
 
     public void update() {
         
         switch (currentState) {
             case UNINITIALIZED:
-                currentState = ShooterState.RUNNING;
 
                 deployHopperStopper();
+                wantedState = ShooterState.RUNNING;
+                handleStateTransition(wantedState);
                 break;
 
             case RUNNING:
@@ -95,18 +86,34 @@ public class Shooter {
                 break;
 
             case SHOOT:
-
+                //wait until the thingy is up to speed, and then open the hopper    
+                if (shooterMotorStar.getClosedLoopError() < +kErrThreshold &&  //if the speed is correct
+                    shooterMotorStar.getClosedLoopError() > -kErrThreshold) {
+                        
+                    if (atSpeedTicks >= 10) { //if its been at speed for a while
+                        retractHopperStopper();
+                        shooterAtSpeed = true; //sends a signal to start feeding into the shooter
+                        //this will make the motors slow down, causing them to go back to the speeding up phase
+                        
+                    }
+                    atSpeedTicks ++;
+                
+                } else { //its not at speed, we are waiting to spin up.
+                    deployHopperStopper();
+                    shooterAtSpeed = false;
+                    atSpeedTicks = 0;
+                }
                 break;
 
             case STOPPED:
 
-                shooterMotorPort.set(TalonSRXControlMode.PercentOutput, 0.0);
-                return;
+                break;
 
             default:
                 currentState = ShooterState.UNINITIALIZED;
                 break;
         }
+        shooterMotorStar.set(TalonSRXControlMode.Velocity, targetVelocity_UnitsPer100ms);
     }
 
     public void setWantedState(final ShooterState wantedState) {
@@ -114,20 +121,25 @@ public class Shooter {
         handleStateTransition(wantedState);
     }
 
-    public boolean reachedGoal() {
-        return (_withinThresholdLoops > kLoopsToSettle);
-    }
-
     private void handleStateTransition(final ShooterState wantedState){
         switch(wantedState){
             case UNINITIALIZED:
+                break;
             case STOPPED:
+                targetVelocity_UnitsPer100ms = 0.0;
+                currentState = ShooterState.STOPPED;
+                shooterAtSpeed = false;
                 break;
             case RUNNING:
-                goal = 1.0;
+                targetVelocity_UnitsPer100ms = idle_UnitsPer100ms;
+                deployHopperStopper();
+                currentState = ShooterState.RUNNING;
+                shooterAtSpeed = false;
+                atSpeedTicks = 0;
                 break;
             case SHOOT:
-                goal = 20.0;
+                targetVelocity_UnitsPer100ms = shooting_UnitsPer100ms;
+                currentState = ShooterState.SHOOT;
                 break;
         }
     }
@@ -135,13 +147,6 @@ public class Shooter {
     public ShooterState getCurrentState() {
         return currentState;
     }
-
-    /**
-     * Checks if the shooter had reached target velocity
-     *
-     * @return True if we have reached the target velocity, false otherwise
-     */
-
     
     //make the hood do stuff
     public void toggleHood() {
