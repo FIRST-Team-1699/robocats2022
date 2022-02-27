@@ -12,6 +12,7 @@ import edu.wpi.first.wpilibj.TimedRobot;
 import frc.team1699.subsystems.BallProcessor;
 import frc.team1699.subsystems.DriveTrain;
 import frc.team1699.subsystems.IntakeHopper;
+import frc.team1699.subsystems.Climber;
 import frc.team1699.subsystems.Shooter;
 import com.ctre.phoenix.motorcontrol.can.TalonSRX;
 import com.ctre.phoenix.motorcontrol.can.TalonFX;
@@ -23,6 +24,7 @@ public class Robot extends TimedRobot {
     private Joystick driveJoystick, opJoystick;
     public PneumaticsModuleType CTREPCM = PneumaticsModuleType.CTREPCM;
     private DriveTrain driveTrain;
+    private Climber climber;
     private IntakeHopper intakeHopp;
     private Shooter shooter;
     private BallProcessor ballProcessor;
@@ -76,6 +78,8 @@ public class Robot extends TimedRobot {
         intakeHopp = new IntakeHopper(intakeSolenoid, intakeHoppTalon);
         shooter = new Shooter(shooterTalonPort, shooterTalonStar, shooterAngleSolenoid, hopperStopper);
         ballProcessor = new BallProcessor(shooter, intakeHopp);
+        climber = new Climber(climberSolenoidPort, climberSolenoidStar);
+
     }
 
     DigitalInput testBreak1 = new DigitalInput(0);
