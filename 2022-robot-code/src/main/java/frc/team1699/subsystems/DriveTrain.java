@@ -64,19 +64,21 @@ public class DriveTrain {
     }
 
     public void update() {
-        if (systemState == wantedState) {
-            runSubsystem();
-            return;
-        }
 
-        if (wantedState == DriveState.MANUAL) {
-            handleManualTransition();
-        } else if (wantedState == DriveState.GOAL_TRACKING) {
-            handleGoalTrackingTransition();
-        }
+        runArcadeDrive(joystick.getX(), -joystick.getY());
+    //    if (systemState == wantedState) {
+    //         runSubsystem();
+    //         return;
+    //     }
 
-        systemState = wantedState;
-        runSubsystem();
+    //     if (wantedState == DriveState.MANUAL) {
+    //         handleManualTransition();
+    //     } else if (wantedState == DriveState.GOAL_TRACKING) {
+    //         handleGoalTrackingTransition();
+    //     }
+
+    //     systemState = wantedState;
+    //     runSubsystem(); 
     }
 
     private void handleManualTransition() {

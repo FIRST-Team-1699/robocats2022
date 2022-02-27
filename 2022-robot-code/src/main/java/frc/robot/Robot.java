@@ -31,7 +31,7 @@ public class Robot extends TimedRobot {
     private TalonSRX intakeHoppTalon, shooterTalonPort, shooterTalonStar, hopperTalon;
     private TalonFX portDriveMaster, portDriveFollower1, portDriveFollower2, starDriveMaster, starDriveFollower1, starDriveFollower2;
     private Compressor compressor;
-    private DoubleSolenoid intakeSolenoid, hopperStopper, shooterAngleSolenoid, climberSolenoidPort, climberSolenoidStar;
+    private DoubleSolenoid intakeSolenoid, hopperStopper, shooterAngleSolenoid, climberSolenoidPort;
     //private AdaFruitBeamBreak intakeBreak, hopperBreak;
     private LimitSwitch shooterBreak;
 
@@ -68,8 +68,6 @@ public class Robot extends TimedRobot {
         hopperStopper = new DoubleSolenoid(Constants.kFlopperSolenoidModulePort, CTREPCM, Constants.kFlopperSolenoidForwardPort, Constants.kFlopperSolenoidReversePort);
         shooterAngleSolenoid = new DoubleSolenoid(Constants.kShooterAngleSolenoidModulePort, CTREPCM, Constants.kShooterAngleSolenoidForwardPort, Constants.kShooterAngleSolenoidReversePort);
         climberSolenoidPort = new DoubleSolenoid(Constants.kPortClimberModulePort, CTREPCM, Constants.kPortClimberForwardPort, Constants.kPortClimberReversePort);
-        climberSolenoidStar = new DoubleSolenoid(Constants.kStarClimberModulePort, CTREPCM, Constants.kStarClimberForwardPort, Constants.kStarClimberReversePort);
-
         //Setup sensors 
         //LOL WE DONT HAVE ANY SENSORS
 
@@ -78,7 +76,6 @@ public class Robot extends TimedRobot {
         intakeHopp = new IntakeHopper(intakeSolenoid, intakeHoppTalon);
         shooter = new Shooter(shooterTalonPort, shooterTalonStar, shooterAngleSolenoid, hopperStopper);
         ballProcessor = new BallProcessor(shooter, intakeHopp);
-        climber = new Climber(climberSolenoidPort, climberSolenoidStar);
 
     }
 
@@ -102,6 +99,7 @@ public class Robot extends TimedRobot {
     @Override
     public void teleopPeriodic() {
 
+    
       /*
       
       HEY THIS CODE IS LIKE RANDOM FUNCTIONALITY THAT WE AREN'T GONNA USE BUT I LEAVE IT FOR EXAMPLE
@@ -132,7 +130,10 @@ public class Robot extends TimedRobot {
         intakeHopp.update();
         shooter.update();
         ballProcessor.update();
-    }
+        if(opJoystick.getRawButtonPressed(1)){
+            ballProcessor.startShooting();
+        }
+      }
 
     @Override
     public void testPeriodic() {

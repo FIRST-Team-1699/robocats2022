@@ -5,6 +5,7 @@ import edu.wpi.first.wpilibj.DoubleSolenoid;
 import com.ctre.phoenix.motorcontrol.can.TalonSRX;
 import com.ctre.phoenix.motorcontrol.InvertType;
 import com.ctre.phoenix.motorcontrol.TalonSRXControlMode;
+import frc.team1699.utils.Utils;
 
 //TODO Fix
 //public class Shooter implements Subsystem{ 
@@ -12,10 +13,10 @@ public class Shooter {
 
     //TODO numbers
     //Control loop constants
-    static final int kP = 0;
-    static final int kI = 0;
-    static final int kD = 0;
-    static final int kF = 0;
+    static final double kP = 0.2;
+    static final double kI = 0;
+    static final double kF = 0;
+    static final double kD = 0.2;
 
     //error variables
     int kErrThreshold = 30; // how many sensor units until its close-enough
@@ -176,14 +177,15 @@ public class Shooter {
         if (!isHoodUp()){
             return;
         } else {
-            hoodSolenoid.toggle();
+            toggleSolenoid(hoodSolenoid);
             currentPosition = HoodPosition.DOWN;
         }
     }
 
     //methods for the hopper stopper! they public so they can be used in the ball processor
     public void toggleHopperStopper() {
-        hoppaStoppa.toggle();
+
+        toggleSolenoid(hoppaStoppa);
         stopperDeployed = !stopperDeployed;
     }
 
@@ -208,5 +210,12 @@ public class Shooter {
         RUNNING,
         SHOOT,
         STOPPED
+    }
+    private void toggleSolenoid(final DoubleSolenoid solenoid){
+        if(solenoid.get() == DoubleSolenoid.Value.kForward){
+            solenoid.set(DoubleSolenoid.Value.kReverse);
+        }else{
+            solenoid.set(DoubleSolenoid.Value.kForward);
+        }
     }
 }

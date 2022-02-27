@@ -4,7 +4,6 @@ import frc.team1699.subsystems.IntakeHopper.IntakeStates;
 import frc.team1699.subsystems.Shooter.ShooterState;
 
 public class BallProcessor {
-
     public enum BallProcessState {
         INIT, //started
         EMPTY, //no balls and no hopper spin
@@ -51,7 +50,7 @@ public class BallProcessor {
                 if (retractingTicks < 25) {
                     intakeHopp.setWantedState(IntakeStates.DEPLOYED);
                     retractingTicks ++;
-                } else if (retractingTicks >= 25) {
+                } else {
                     intakeHopp.setWantedState(IntakeStates.STORED);
                     retractingTicks = 0;
                     currentState = BallProcessState.LOADED;
