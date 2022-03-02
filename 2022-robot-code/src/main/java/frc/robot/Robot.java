@@ -142,11 +142,13 @@ public class Robot extends TimedRobot {
 
     private void runTest(){
 
-        // Buttons linked to stuff goes here
-        //ex:
-        // if(driveJoystick.getRawButtonPressed(7)){
-        //     toggleSolenoid(intakeSolenoid);
-        // }
+        //TODO when the team gives u the robot, test a buncha stuff here
+        //(if it doesn't work you have my permission to cry)
 
+        driveTrain.update();
+
+        if (driveJoystick.getRawButtonPressed(1)){
+            
+        }
     }
 }
