@@ -1,11 +1,11 @@
 package frc.team1699.subsystems;
 
-import com.ctre.phoenix.motorcontrol.FeedbackDevice;
 import edu.wpi.first.wpilibj.DoubleSolenoid;
+//import frc.team1699.utils.sensors.BeamBreak;
 import com.ctre.phoenix.motorcontrol.can.TalonSRX;
-import frc.team1699.utils.Gains;
-import frc.team1699.utils.sim.PhysicsSim;
 import com.ctre.phoenix.motorcontrol.InvertType;
+import com.ctre.phoenix.motorcontrol.TalonSRXControlMode;
+import frc.team1699.utils.Utils;
 
 //TODO Fix
 //public class Shooter implements Subsystem{ 
@@ -21,15 +21,12 @@ public class Shooter {
     //error variables
     int kErrThreshold = 30; // how many sensor units until its close-enough
 
-    public static final int kPIDLoopIDX = 0; //just leave this at 0 its for if u want more than 1 loop
-    public static final int kTimeoutMs = 100;
-
-    public final Gains kVelocityPIDGains = new Gains(0.25, 0.001, 20.0, 1023.0/7200.0, 1.0, 300);
+    static final int kPIDLoopIDX = 0; //just leave this at 0 its for if u want more than 1 loop
     
     private double targetVelocity_UnitsPer100ms = 0.0;
 
-    private final double idle_UnitsPer100ms = 5000.0; //target velocity when its "running"
-    private final double shooting_UnitsPer100ms = 2000.0; //the target velocity while shooting
+    private double idle_UnitsPer100ms = 500.0; //target velocity when its "running"
+    private double shooting_UnitsPer100ms = 2000.0; //the target velocity while shooting
 
     public boolean shooterAtSpeed = false;
     private int atSpeedTicks = 0;
@@ -38,13 +35,16 @@ public class Shooter {
     private HoodPosition currentPosition;
     private final DoubleSolenoid hoodSolenoid;
 
+    private final int kTimeoutMs = 30;
+    
     //hoppaStoppa is the flipper in the hopper on a double action solenoid that stops the balls from going into the shooter
     //when it is deployed, the balls can't move through to the shooter
     private final DoubleSolenoid hoppaStoppa;
     public static boolean stopperDeployed = false;
 
-    private final TalonSRX shooterMotorPort;
-    private final TalonSRX shooterMotorStar;
+    private TalonSRX shooterMotorPort;
+    private TalonSRX shooterMotorStar;
+    private TalonSRXControlMode TalonSRXControlMode;
 
     public Shooter(final TalonSRX portMotor, final TalonSRX starMotor, final DoubleSolenoid hoodSolenoid, final DoubleSolenoid hoppaStoppa) {
         this.shooterMotorPort = starMotor;
@@ -52,34 +52,24 @@ public class Shooter {
         this.hoodSolenoid = hoodSolenoid;
         this.hoppaStoppa = hoppaStoppa; //this is the hopper stopper, the stopper in the hopper. its stops the balls. NO I WILL NOT CHANGE ITS NAME.
         this.currentPosition = HoodPosition.DOWN;
+        
 
-        portMotor.configFactoryDefault();
-        starMotor.configFactoryDefault();
+        starMotor.setInverted(true);
+        portMotor.follow(starMotor);
+        portMotor.setInverted(InvertType.OpposeMaster);
+        starMotor.setSensorPhase(true); //TODO check direction
 
-        starMotor.follow(portMotor);
-        starMotor.setInverted(InvertType.OpposeMaster);
 
-        portMotor.configSelectedFeedbackSensor(FeedbackDevice.CTRE_MagEncoder_Relative, kPIDLoopIDX, kTimeoutMs);
+        starMotor.configNominalOutputForward(0, kTimeoutMs);
+        starMotor.configNominalOutputReverse(0, kTimeoutMs);
+        starMotor.configPeakOutputForward(1, kTimeoutMs);
+        starMotor.configPeakOutputReverse(-1, kTimeoutMs);
 
-        portMotor.setSensorPhase(true);
+        starMotor.config_kP(kPIDLoopIDX, kP, kTimeoutMs);
+        starMotor.config_kI(kPIDLoopIDX, kI, kTimeoutMs);
+        starMotor.config_kD(kPIDLoopIDX, kD, kTimeoutMs);
+        starMotor.config_kF(kPIDLoopIDX, kF, kTimeoutMs);
 
-        portMotor.configNominalOutputForward(0, kTimeoutMs);
-        portMotor.configNominalOutputReverse(0, kTimeoutMs);
-        portMotor.configPeakOutputForward(1, kTimeoutMs);
-        portMotor.configPeakOutputReverse(-1, kTimeoutMs);
-
-        portMotor.config_kF(kPIDLoopIDX, kVelocityPIDGains.kF, kTimeoutMs);
-        portMotor.config_kP(kPIDLoopIDX, kVelocityPIDGains.kP, kTimeoutMs);
-        portMotor.config_kI(kPIDLoopIDX, kVelocityPIDGains.kI, kTimeoutMs);
-        portMotor.config_kD(kPIDLoopIDX, kVelocityPIDGains.kD, kTimeoutMs);
-    }
-
-    public void simulationInit() {
-        PhysicsSim.getInstance().addTalonSRX(shooterMotorPort, 1.5, 7200, true);
-    }
-
-    public void simulationPeriodic() {
-        PhysicsSim.getInstance().run();
     }
 
     public void update() {
@@ -124,8 +114,7 @@ public class Shooter {
                 currentState = ShooterState.UNINITIALIZED;
                 break;
         }
-        shooterMotorStar.set(com.ctre.phoenix.motorcontrol.TalonSRXControlMode.Velocity, targetVelocity_UnitsPer100ms);
-        System.out.println("Target: " + targetVelocity_UnitsPer100ms + " Error: " + shooterMotorPort.getClosedLoopError(kPIDLoopIDX) + " Output: " + shooterMotorPort.getMotorOutputPercent());
+        shooterMotorStar.set(TalonSRXControlMode.Velocity, targetVelocity_UnitsPer100ms);
     }
 
     public void setWantedState(final ShooterState wantedState) {
