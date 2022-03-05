@@ -11,6 +11,7 @@ import edu.wpi.first.wpilibj.PneumaticsModuleType;
 import edu.wpi.first.wpilibj.TimedRobot;
 import frc.team1699.subsystems.BallProcessor;
 import frc.team1699.subsystems.DriveTrain;
+import frc.team1699.subsystems.IntakeHopper.IntakeStates;
 import frc.team1699.subsystems.IntakeHopper;
 import frc.team1699.subsystems.Climber;
 import frc.team1699.subsystems.Shooter;
@@ -77,13 +78,15 @@ public class Robot extends TimedRobot {
         shooter = new Shooter(shooterTalonPort, shooterTalonStar, shooterAngleSolenoid, hopperStopper);
         ballProcessor = new BallProcessor(shooter, intakeHopp);
 
+        climber = new Climber(climberSolenoidPort);
+
     }
 
     DigitalInput testBreak1 = new DigitalInput(0);
     DigitalInput testBreak2 = new DigitalInput(2);
     @Override
     public void robotPeriodic() {
-        System.out.printf("Port 0: %b ---- Port 2: %b\n", testBreak1.get(), testBreak2.get());
+      //  System.out.printf("Port 0: %b ---- Port 2: %b\n", testBreak1.get(), testBreak2.get());
     }
 
 
@@ -142,13 +145,27 @@ public class Robot extends TimedRobot {
 
     private void runTest(){
 
-        //TODO when the team gives u the robot, test a buncha stuff here
-        //(if it doesn't work you have my permission to cry)
 
-        driveTrain.update();
 
-        if (driveJoystick.getRawButtonPressed(1)){
-            
+        if (driveJoystick.getTrigger()){
+            intakeHopp.setWantedState(IntakeStates.RUNHOP);
         }
+        if (!driveJoystick.getTrigger()) {
+            intakeHopp.setWantedState(IntakeStates.STORED);
+        }
+
+        if (driveJoystick.getRawButtonPressed(10)) {
+            climber.climberToggle();
+        }
+
+        if (driveJoystick.getRawButtonPressed(3)) {
+            ballProcessor.startShooting();
+        }
+
+        ballProcessor.update();
+        shooter.update();
+        driveTrain.update();
+        intakeHopp.update();
+
     }
 }

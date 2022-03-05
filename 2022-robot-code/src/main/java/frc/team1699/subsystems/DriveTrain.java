@@ -4,6 +4,7 @@ package frc.team1699.subsystems;
 import com.kauailabs.navx.frc.AHRS;
 import edu.wpi.first.wpilibj.Joystick;
 import frc.team1699.utils.sensors.LimeLight;
+import frc.team1699.utils.Utils;
 import com.ctre.phoenix.motorcontrol.can.TalonFX;
 import com.ctre.phoenix.music.Orchestra;//NO I WILL NOT DELETE THIS IMPORT, IT IS IMPORTANT TO ME
 import com.ctre.phoenix.motorcontrol.FollowerType;
@@ -17,6 +18,11 @@ public class DriveTrain {
     private final Joystick joystick;
     private DriveState systemState, wantedState;
     private double portCommand, starCommand;
+
+    private final int kRampTotal = 25; // in ticks, 50 ticks in a second, do the math u lazy dummy
+    private int rampTicks = 0;
+    private boolean isZero = true;
+    private boolean isRamping = false;
 
     /**
      * yuh i'ssa drivetrain
@@ -50,35 +56,24 @@ public class DriveTrain {
 
         this.joystick = joystick;
 
-        //oh hey i dont know which directions these should go
-        starDrive1.setInverted(TalonFXInvertType.Clockwise); //TODO check the directions u big dumb idiot
-        portDrive1.setInverted(TalonFXInvertType.CounterClockwise); //TODO check the directions u big dumb idiot
-
-        starDrive2.setInverted(TalonFXInvertType.FollowMaster);
-        starDrive3.setInverted(TalonFXInvertType.FollowMaster);
-
-        portDrive2.setInverted(TalonFXInvertType.FollowMaster);
-        portDrive3.setInverted(TalonFXInvertType.FollowMaster);
-
         wantedState = DriveState.MANUAL;
     }
 
     public void update() {
 
-        runArcadeDrive(joystick.getX(), -joystick.getY());
-    //    if (systemState == wantedState) {
-    //         runSubsystem();
-    //         return;
-    //     }
+       if (systemState == wantedState) {
+            runSubsystem();
+            return;
+        }
 
-    //     if (wantedState == DriveState.MANUAL) {
-    //         handleManualTransition();
-    //     } else if (wantedState == DriveState.GOAL_TRACKING) {
-    //         handleGoalTrackingTransition();
-    //     }
+        if (wantedState == DriveState.MANUAL) {
+            handleManualTransition();
+        } else if (wantedState == DriveState.GOAL_TRACKING) {
+            handleGoalTrackingTransition();
+        }
 
-    //     systemState = wantedState;
-    //     runSubsystem(); 
+        systemState = wantedState;
+        runSubsystem(); 
     }
 
     private void handleManualTransition() {
@@ -92,7 +87,7 @@ public class DriveTrain {
     private void runSubsystem() {
         switch (systemState) {
             case MANUAL:
-                runArcadeDrive(joystick.getX(), -joystick.getY());
+                runArcadeDrive(joystick.getX(), -joystick.getY(), false);
                 break;
             case GOAL_TRACKING:
                 //TODO do goal tracking
@@ -104,7 +99,7 @@ public class DriveTrain {
     }
 
     //WPILib Differential Drive
-    protected void runArcadeDrive(double throttle, double rotate) {
+    protected void runArcadeDrive(double throttle, double rotate, boolean doRamp) {
         double portOutput = 0.0;
         double starOutput = 0.0;
 
@@ -134,9 +129,30 @@ public class DriveTrain {
             }
         }
 
+        if (Utils.epsilonEquals(portOutput, 0, 0.1) && Utils.epsilonEquals(starOutput, 0, 0.1)){
+            isZero = true;
+            isRamping = false;
+            rampTicks = 0;
+            portOutput = 0;
+            starOutput = 0;
+        } else {
+            isZero = false;
+        }
+        
+        if (doRamp && !isZero && !isRamping) { //start ramping
+            isRamping = true;
+        }
+        if (isRamping && rampTicks < kRampTotal) { //activley ramping
+            rampTicks ++;
+            portOutput = portOutput * (rampTicks / kRampTotal); //multily output by % of ticks completed
+            starOutput = starOutput * (rampTicks / kRampTotal);
+        }
+    
+       // System.out.println("port: " + portOutput + " star: " + starOutput);
         portDrive1.set(TalonFXControlMode.PercentOutput, portOutput);
         starDrive1.set(TalonFXControlMode.PercentOutput, starOutput);
     }
+
 
     public void setWantedState(final DriveState driveState){
         wantedState = driveState;

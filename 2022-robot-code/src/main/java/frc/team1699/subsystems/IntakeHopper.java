@@ -19,6 +19,8 @@ public class IntakeHopper implements Subsystem {
         wantedState = IntakeStates.STORED;
         this.solenoid = solenoid;
         this.speedController = speedController;
+        speedController.setInverted(true);
+        System.out.println("i exist");
     }
 
     public void update() {
@@ -40,6 +42,7 @@ public class IntakeHopper implements Subsystem {
 
             //Deploy intake and turn on intake wheels
             solenoid.set(DoubleSolenoid.Value.kForward);
+            System.out.println("i deploy");
             speedController.set(TalonSRXControlMode.PercentOutput, kIntakeSpeed);
 
             currentState = wantedState;
@@ -70,7 +73,7 @@ public class IntakeHopper implements Subsystem {
         this.wantedState = wantedState;
     }
 
-    enum IntakeStates {
+    public enum IntakeStates {
         DEPLOYED,
         STORED,
         RUNHOP,

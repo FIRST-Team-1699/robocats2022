@@ -28,13 +28,13 @@ public class Shooter {
     
     private double targetVelocity_UnitsPer100ms = 0.0;
 
-    private final double idle_UnitsPer100ms = 5000.0; //target velocity when its "running"
-    private final double shooting_UnitsPer100ms = 2000.0; //the target velocity while shooting
+    private final double idle_UnitsPer100ms = 2000.0; //target velocity when its "running"
+    private final double shooting_UnitsPer100ms = 5000.0; //the target velocity while shooting
 
     public boolean shooterAtSpeed = false;
     private int atSpeedTicks = 0;
 
-    private ShooterState currentState = ShooterState.UNINITIALIZED, wantedState;
+    private ShooterState currentState, wantedState = ShooterState.UNINITIALIZED;
     private HoodPosition currentPosition;
     private final DoubleSolenoid hoodSolenoid;
 
@@ -53,6 +53,7 @@ public class Shooter {
         this.hoppaStoppa = hoppaStoppa; //this is the hopper stopper, the stopper in the hopper. its stops the balls. NO I WILL NOT CHANGE ITS NAME.
         this.currentPosition = HoodPosition.DOWN;
 
+        currentState = ShooterState.UNINITIALIZED;
         portMotor.configFactoryDefault();
         starMotor.configFactoryDefault();
 
@@ -124,8 +125,8 @@ public class Shooter {
                 currentState = ShooterState.UNINITIALIZED;
                 break;
         }
-        shooterMotorStar.set(com.ctre.phoenix.motorcontrol.TalonSRXControlMode.Velocity, targetVelocity_UnitsPer100ms);
-        System.out.println("Target: " + targetVelocity_UnitsPer100ms + " Error: " + shooterMotorPort.getClosedLoopError(kPIDLoopIDX) + " Output: " + shooterMotorPort.getMotorOutputPercent());
+        shooterMotorStar.set(com.ctre.phoenix.motorcontrol.TalonSRXControlMode.Velocity, -targetVelocity_UnitsPer100ms);
+        //System.out.println("Target: " + targetVelocity_UnitsPer100ms + " Error: " + shooterMotorPort.getClosedLoopError(kPIDLoopIDX) + " Output: " + shooterMotorPort.getMotorOutputPercent());
     }
 
     public void setWantedState(final ShooterState wantedState) {

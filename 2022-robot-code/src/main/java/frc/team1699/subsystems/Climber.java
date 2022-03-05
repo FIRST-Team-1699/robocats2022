@@ -6,7 +6,7 @@ import edu.wpi.first.wpilibj.DoubleSolenoid;
 public class Climber {
 
     //define me some pistons
-    DoubleSolenoid portPiston, starPiston;
+    DoubleSolenoid portPiston;
 
     /**
     *
@@ -29,5 +29,15 @@ public class Climber {
     //makes the climber retract
     public void climberDown(){
         portPiston.set(DoubleSolenoid.Value.kReverse);
+    }
+    private void toggleSolenoid(final DoubleSolenoid solenoid){
+        if(solenoid.get() == DoubleSolenoid.Value.kForward){
+            solenoid.set(DoubleSolenoid.Value.kReverse);
+        }else{
+            solenoid.set(DoubleSolenoid.Value.kForward);
+        }
+    }
+    public void climberToggle(){
+        toggleSolenoid(portPiston);
     }
 }
