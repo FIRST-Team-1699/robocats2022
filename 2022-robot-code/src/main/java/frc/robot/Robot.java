@@ -87,7 +87,8 @@ public class Robot extends TimedRobot {
         ballProcessor = new BallProcessor(shooter, intakeHopp);
 
         climber = new Climber(climberSolenoidPort);
-
+        
+        portDriveMaster
     }
 
     DigitalInput testBreak1 = new DigitalInput(0);
@@ -105,6 +106,7 @@ public class Robot extends TimedRobot {
 
     @Override
     public void autonomousPeriodic() {
+        
     }
 
     @Override
