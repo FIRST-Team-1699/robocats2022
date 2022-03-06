@@ -19,7 +19,7 @@ public class Shooter {
     static final double kD = 0.2;
 
     //error variables
-    int kErrThreshold = 30; // how many sensor units until its close-enough
+    int kErrThreshold = 50; // how many sensor units until its close-enough
 
     public static final int kPIDLoopIDX = 0; //just leave this at 0 its for if u want more than 1 loop
     public static final int kTimeoutMs = 100;
@@ -28,8 +28,8 @@ public class Shooter {
     
     private double targetVelocity_UnitsPer100ms = 0.0;
 
-    private final double idle_UnitsPer100ms = 2000.0; //target velocity when its "running"
-    private final double shooting_UnitsPer100ms = 5000.0; //the target velocity while shooting
+    private final double idle_UnitsPer100ms = 15000.0; //target velocity when its "running"
+    private final double shooting_UnitsPer100ms = 19000.0; //the target velocity while shooting
 
     public boolean shooterAtSpeed = false;
     private int atSpeedTicks = 0;
@@ -163,7 +163,7 @@ public class Shooter {
     
     //make the hood do stuff
     public void toggleHood() {
-        hoodSolenoid.toggle();
+        toggleSolenoid(hoodSolenoid);
         if (currentPosition == HoodPosition.UP){
             currentPosition = HoodPosition.DOWN;
         } else {
@@ -181,7 +181,7 @@ public class Shooter {
         if (isHoodUp()){
             return;
         } else {
-            hoodSolenoid.toggle();
+            toggleSolenoid(hoodSolenoid);
             currentPosition = HoodPosition.UP;
         }
     }

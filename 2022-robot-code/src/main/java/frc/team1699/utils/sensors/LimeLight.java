@@ -1,14 +1,17 @@
 package frc.team1699.utils.sensors;
 
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import edu.wpi.first.networktables.NetworkTable;
+import edu.wpi.first.networktables.NetworkTableEntry;
 import edu.wpi.first.networktables.NetworkTableInstance;
 
 public class LimeLight {
 
     private static LimeLight instance;
-    private final NetworkTableInstance table;
+    private final NetworkTable table;
 
     private LimeLight() {
-        table = NetworkTableInstance.getDefault();
+        table = NetworkTableInstance.getDefault().getTable("limelight");
     }
 
     public static LimeLight getInstance() {
@@ -19,22 +22,22 @@ public class LimeLight {
     }
 
     public double getTX() {
-        return table.getTable("limelight").getEntry("tx").getDouble(0);
+        return table.getEntry("tx").getDouble(0);
     }
 
     public double getTY() {
-        return table.getTable("limelight").getEntry("ty").getDouble(0);
+        return table.getEntry("ty").getDouble(0);
     }
 
     public void turnOff() {
-        table.getTable("limelight").getEntry("ledMode").setNumber(1);
+        table.getEntry("ledMode").setNumber(1);
     }
 
     public void turnOn() {
-        table.getTable("limelight").getEntry("ledMode").setNumber(3);
+        table.getEntry("ledMode").setNumber(3);
     }
 
     public void blink() {
-        table.getTable("limelight").getEntry("ledMode").setNumber(2);
+        table.getEntry("ledMode").setNumber(2);
     }
 }

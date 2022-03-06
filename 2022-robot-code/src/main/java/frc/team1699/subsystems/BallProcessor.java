@@ -28,6 +28,10 @@ public class BallProcessor {
         this.intakeHopp = intakeHopp;
     }
 
+    public void setProcessorState(final BallProcessState currentState) {
+        this.currentState = currentState;
+    }
+
     //woah look its the update method! it gets run e'ry periodic update!
     public void update() {
 
@@ -58,7 +62,7 @@ public class BallProcessor {
             break;
 
             case LOADED:
-            //TODO know how many balls are inside??
+                intakeHopp.setWantedState(IntakeStates.STORED);
             break;
 
             case SHOOTING: //TODO use drivtrain to do aiming
@@ -90,6 +94,11 @@ public class BallProcessor {
         shootingTicks = 0;
         shooter.setWantedState(ShooterState.SHOOT);
         //TODO make the drivetrain start aiming
+    }
+    public void stopShooting(){
+        currentState = BallProcessState.LOADED;
+        shootingTicks = 0;
+        shooter.setWantedState(ShooterState.RUNNING);
     }
 
 }

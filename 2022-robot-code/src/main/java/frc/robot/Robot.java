@@ -7,10 +7,16 @@ import edu.wpi.first.wpilibj.DoubleSolenoid;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Filesystem;
 import edu.wpi.first.wpilibj.Joystick;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import edu.wpi.first.networktables.NetworkTable;
+import edu.wpi.first.networktables.NetworkTableEntry;
+import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.wpilibj.PneumaticsModuleType;
 import edu.wpi.first.wpilibj.TimedRobot;
 import frc.team1699.subsystems.BallProcessor;
+import frc.team1699.subsystems.BallProcessor.BallProcessState;
 import frc.team1699.subsystems.DriveTrain;
+import frc.team1699.subsystems.DriveTrain.DriveState;
 import frc.team1699.subsystems.IntakeHopper.IntakeStates;
 import frc.team1699.subsystems.IntakeHopper;
 import frc.team1699.subsystems.Climber;
@@ -38,6 +44,8 @@ public class Robot extends TimedRobot {
 
     @Override
     public void robotInit() {
+
+
         //Setup joystick
         driveJoystick = new Joystick(0);
         opJoystick = new Joystick(1);
@@ -102,40 +110,37 @@ public class Robot extends TimedRobot {
     @Override
     public void teleopPeriodic() {
 
-    
-      /*
-      
-      HEY THIS CODE IS LIKE RANDOM FUNCTIONALITY THAT WE AREN'T GONNA USE BUT I LEAVE IT FOR EXAMPLE
+        if (driveJoystick.getRawButton(2)){
+            driveTrain.setWantedState(DriveState.GOAL_TRACKING);
+        } else {
+            driveTrain.setWantedState(DriveState.MANUAL);
+        }
 
-      */
-      
-      // if(driveJoystick.getTriggerPressed()){
-      //       driveTrain.setWantedState(DriveTrain.DriveState.GOAL_TRACKING);
-      //   }else if(driveJoystick.getTriggerReleased()){
-      //       driveTrain.setWantedState(DriveTrain.DriveState.MANUAL);
-      //   }
+        if (driveJoystick.getTriggerPressed()){
+            ballProcessor.setProcessorState(BallProcessState.COLLECTING);
+        }
+        if (driveJoystick.getTriggerReleased()) {
+            ballProcessor.setProcessorState(BallProcessState.LOADED);
+        }
 
-      //   if(opJoystick.getRawButtonPressed(7)){
-      //       ballProcessor.setWantedState(BallProcessor.BallProcessState.COLLECTING);
-      //   }else if(opJoystick.getRawButtonPressed(8)){
-      //       ballProcessor.setWantedState(BallProcessor.BallProcessState.SHOOTING);
-      //   }else if(opJoystick.getRawButtonPressed(9)){
-      //       ballProcessor.setWantedState(BallProcessor.BallProcessState.EMPTY);
-      //   }else if(opJoystick.getRawButtonPressed(10)){
-      //       ballProcessor.setWantedState(BallProcessor.BallProcessState.RETRACTING);
-      //   }
+        if (driveJoystick.getRawButtonPressed(10)) {
+            climber.climberToggle();
+        }
 
-      //   if(opJoystick.getRawButtonPressed(2)){
-      //       toggleSolenoid(shooterAngleSolenoid);
-      //   }
-
-        driveTrain.update();
-        intakeHopp.update();
-        shooter.update();
-        ballProcessor.update();
-        if(opJoystick.getRawButtonPressed(1)){
+        if (driveJoystick.getRawButtonPressed(3)) {
             ballProcessor.startShooting();
         }
+        if (driveJoystick.getRawButtonReleased(3)) {
+            ballProcessor.stopShooting();
+        }
+        if (driveJoystick.getRawButtonPressed(11)) {
+            shooter.toggleHood();
+        }
+
+        ballProcessor.update();
+        shooter.update();
+        driveTrain.update();
+        intakeHopp.update();
       }
 
     @Override
@@ -147,25 +152,7 @@ public class Robot extends TimedRobot {
 
 
 
-        if (driveJoystick.getTrigger()){
-            intakeHopp.setWantedState(IntakeStates.RUNHOP);
-        }
-        if (!driveJoystick.getTrigger()) {
-            intakeHopp.setWantedState(IntakeStates.STORED);
-        }
 
-        if (driveJoystick.getRawButtonPressed(10)) {
-            climber.climberToggle();
-        }
-
-        if (driveJoystick.getRawButtonPressed(3)) {
-            ballProcessor.startShooting();
-        }
-
-        ballProcessor.update();
-        shooter.update();
-        driveTrain.update();
-        intakeHopp.update();
 
     }
 }

@@ -9,6 +9,7 @@ import com.ctre.phoenix.motorcontrol.can.TalonFX;
 import com.ctre.phoenix.music.Orchestra;//NO I WILL NOT DELETE THIS IMPORT, IT IS IMPORTANT TO ME
 import com.ctre.phoenix.motorcontrol.FollowerType;
 import com.ctre.phoenix.motorcontrol.TalonFXControlMode;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import com.ctre.phoenix.motorcontrol.TalonFXInvertType;
 
 public class DriveTrain {
@@ -23,6 +24,10 @@ public class DriveTrain {
     private int rampTicks = 0;
     private boolean isZero = true;
     private boolean isRamping = false;
+
+    //aiming constants
+    final double kSteer = 0.06;
+    final double kDrive = 0.26;
 
     /**
      * yuh i'ssa drivetrain
@@ -74,6 +79,9 @@ public class DriveTrain {
 
         systemState = wantedState;
         runSubsystem(); 
+
+        SmartDashboard.putNumber("LimelightX", LimeLight.getInstance().getTX());
+        SmartDashboard.putNumber("LimelightY", LimeLight.getInstance().getTY());
     }
 
     private void handleManualTransition() {
@@ -82,6 +90,7 @@ public class DriveTrain {
 
     private void handleGoalTrackingTransition() {
         LimeLight.getInstance().turnOn();
+
     }
 
     private void runSubsystem() {
@@ -91,6 +100,8 @@ public class DriveTrain {
                 break;
             case GOAL_TRACKING:
                 //TODO do goal tracking
+
+                runArcadeDrive(LimeLight.getInstance().getTX()*kSteer, LimeLight.getInstance().getTY()*kDrive, false);
 
                 break;
             default:
