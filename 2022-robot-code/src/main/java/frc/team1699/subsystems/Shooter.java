@@ -28,7 +28,7 @@ public class Shooter {
     
     private double targetVelocity_UnitsPer100ms = 0.0;
 
-    private final double idle_UnitsPer100ms = 15000.0; //target velocity when its "running"
+    private final double idle_UnitsPer100ms = 0.0; //target velocity when its "running"
     private final double shooting_UnitsPer100ms = 19000.0; //the target velocity while shooting
 
     public boolean shooterAtSpeed = false;

@@ -22,8 +22,11 @@ import frc.team1699.subsystems.IntakeHopper;
 import frc.team1699.subsystems.Climber;
 import frc.team1699.subsystems.Shooter;
 import com.ctre.phoenix.motorcontrol.can.TalonSRX;
+import com.ctre.phoenix.motorcontrol.ControlMode;
+import com.ctre.phoenix.motorcontrol.NeutralMode;
 import com.ctre.phoenix.motorcontrol.can.TalonFX;
 import frc.team1699.utils.sensors.LimitSwitch;
+import frc.team1699.utils.sensors.LimeLight;
 
 
 public class Robot extends TimedRobot {
@@ -42,9 +45,11 @@ public class Robot extends TimedRobot {
     //private AdaFruitBeamBreak intakeBreak, hopperBreak;
     private LimitSwitch shooterBreak;
 
+    double autotarget = 60000.0;
+    private boolean moveDone;
+
     @Override
     public void robotInit() {
-
 
         //Setup joystick
         driveJoystick = new Joystick(0);
@@ -54,12 +59,21 @@ public class Robot extends TimedRobot {
         portDriveMaster = new TalonFX(Constants.kPortDrivePort1);
         portDriveFollower1 = new TalonFX(Constants.kPortDrivePort2);
         portDriveFollower2 = new TalonFX(Constants.kPortDrivePort3);
-        
+
+        portDriveMaster.setNeutralMode(NeutralMode.Brake);
+        portDriveFollower1.setNeutralMode(NeutralMode.Brake);
+        portDriveFollower2.setNeutralMode(NeutralMode.Brake);
 
         //Setup starboard drive motors
         starDriveMaster = new TalonFX(Constants.kStarDrivePort1);
         starDriveFollower1 = new TalonFX(Constants.kStarDrivePort2);
         starDriveFollower2 = new TalonFX(Constants.kStarDrivePort3);
+
+        starDriveMaster.setNeutralMode(NeutralMode.Brake);
+        starDriveFollower1.setNeutralMode(NeutralMode.Brake);
+        starDriveFollower2.setNeutralMode(NeutralMode.Brake);
+
+        
 
         //Setup drive train
         driveTrain = new DriveTrain(portDriveMaster, portDriveFollower1, portDriveFollower2, starDriveMaster, starDriveFollower1, starDriveFollower2, driveJoystick);
@@ -88,7 +102,9 @@ public class Robot extends TimedRobot {
 
         climber = new Climber(climberSolenoidPort);
         
-        portDriveMaster
+        portDriveMaster.configFactoryDefault();
+        portDriveMaster.setSelectedSensorPosition(0.0);
+
     }
 
     DigitalInput testBreak1 = new DigitalInput(0);
@@ -101,12 +117,51 @@ public class Robot extends TimedRobot {
 
     @Override
     public void autonomousInit() {
+        portDriveMaster.setSelectedSensorPosition(0.0);
+        moveDone = false;
+        LimeLight.getInstance().turnOn();
 
+        ballProcessor.setProcessorState(BallProcessState.COLLECTING);
     }
 
     @Override
     public void autonomousPeriodic() {
-        
+        driveTrain.setWantedState(DriveState.AUTONOMOUS);
+        double forward = 0.0, turn = 0.0;
+        int intaketicks = 0;
+        if (!moveDone) {
+            System.out.println("cool im in not done");
+            if (portDriveMaster.getSelectedSensorPosition() >= autotarget){
+                System.out.println("cool");
+
+
+                
+                moveDone = true;
+            } else {
+                System.out.println("cool i should be moving???????");
+                forward = 0.5;
+            }
+        }
+        if (moveDone) {
+            if (LimeLight.getInstance().getTV() < 1) {
+                forward = 0;
+                turn = 0.4;
+
+                if (intaketicks <= 25) {
+                    intaketicks++;
+                } else {
+                    ballProcessor.setProcessorState(BallProcessState.LOADED);
+                }
+            }
+        }
+      //  System.out.println(portDriveMaster.getSelectedSensorPosition());
+
+      System.out.println(forward);
+      driveTrain.setAutoDemand(forward, turn);
+
+        intakeHopp.update();
+        ballProcessor.update();
+        driveTrain.update();
     }
 
     @Override

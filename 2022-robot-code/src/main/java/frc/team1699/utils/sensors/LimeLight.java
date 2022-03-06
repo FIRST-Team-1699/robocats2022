@@ -21,6 +21,10 @@ public class LimeLight {
         return instance;
     }
 
+    public double getTV() {
+        return table.getEntry("tv").getDouble(0);
+    }
+
     public double getTX() {
         return table.getEntry("tx").getDouble(0);
     }

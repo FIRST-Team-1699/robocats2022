@@ -29,6 +29,10 @@ public class DriveTrain {
     final double kSteer = 0.06;
     final double kDrive = 0.26;
 
+    double autoFwdDemand = 0.0;
+    double autoTurnDemand = 0.0;
+
+
     /**
      * yuh i'ssa drivetrain
      * @param portDrive1
@@ -96,21 +100,23 @@ public class DriveTrain {
     private void runSubsystem() {
         switch (systemState) {
             case MANUAL:
-                runArcadeDrive(joystick.getX(), -joystick.getY(), false);
+                runArcadeDrive(joystick.getX(), -joystick.getY());
                 break;
             case GOAL_TRACKING:
-                //TODO do goal tracking
 
-                runArcadeDrive(LimeLight.getInstance().getTX()*kSteer, LimeLight.getInstance().getTY()*kDrive, false);
+                runArcadeDrive(LimeLight.getInstance().getTX()*kSteer, LimeLight.getInstance().getTY()*kDrive);
 
                 break;
+            case AUTONOMOUS:
+                runArcadeDrive(autoTurnDemand, autoFwdDemand);
+            break;
             default:
                 break;
         }
     }
 
     //WPILib Differential Drive
-    protected void runArcadeDrive(double throttle, double rotate, boolean doRamp) {
+    public void runArcadeDrive(double throttle, double rotate) {
         double portOutput = 0.0;
         double starOutput = 0.0;
 
@@ -140,25 +146,7 @@ public class DriveTrain {
             }
         }
 
-        if (Utils.epsilonEquals(portOutput, 0, 0.1) && Utils.epsilonEquals(starOutput, 0, 0.1)){
-            isZero = true;
-            isRamping = false;
-            rampTicks = 0;
-            portOutput = 0;
-            starOutput = 0;
-        } else {
-            isZero = false;
-        }
-        
-        if (doRamp && !isZero && !isRamping) { //start ramping
-            isRamping = true;
-        }
-        if (isRamping && rampTicks < kRampTotal) { //activley ramping
-            rampTicks ++;
-            portOutput = portOutput * (rampTicks / kRampTotal); //multily output by % of ticks completed
-            starOutput = starOutput * (rampTicks / kRampTotal);
-        }
-    
+
        // System.out.println("port: " + portOutput + " star: " + starOutput);
         portDrive1.set(TalonFXControlMode.PercentOutput, portOutput);
         starDrive1.set(TalonFXControlMode.PercentOutput, starOutput);
@@ -169,8 +157,14 @@ public class DriveTrain {
         wantedState = driveState;
     }
 
+    public void setAutoDemand(double fwd, double turn){
+        autoFwdDemand = fwd;
+        autoTurnDemand = turn;
+    }
+
     public enum DriveState {
         MANUAL,
-        GOAL_TRACKING
+        GOAL_TRACKING,
+        AUTONOMOUS
     }
 }

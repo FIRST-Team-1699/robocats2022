@@ -63,6 +63,7 @@ public class BallProcessor {
 
             case LOADED:
                 intakeHopp.setWantedState(IntakeStates.STORED);
+                shooter.setWantedState(ShooterState.RUNNING);
             break;
 
             case SHOOTING: //TODO use drivtrain to do aiming

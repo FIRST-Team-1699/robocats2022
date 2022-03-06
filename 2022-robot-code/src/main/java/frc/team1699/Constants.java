@@ -7,14 +7,14 @@ public class Constants {
     //Motor Constants
 
     //Port Drive Motor Ports (thats the left side)
-    public static final int kPortDrivePort1 = 33;
+    public static final int kPortDrivePort1 = 32;
     public static final int kPortDrivePort2 = 35;
     public static final int kPortDrivePort3 = 34;
 
     //Starboard Drive Motor Ports (thats the right side)
-    public static final int kStarDrivePort1 = 31;
+    public static final int kStarDrivePort1 = 33;
     public static final int kStarDrivePort2 = 36;
-    public static final int kStarDrivePort3 = 32;
+    public static final int kStarDrivePort3 = 31;
 
     //Intake + Hopper Motor Port
     public static final int kIntakeHoppPort = 15;
