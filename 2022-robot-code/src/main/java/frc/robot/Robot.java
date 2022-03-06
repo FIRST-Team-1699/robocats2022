@@ -167,11 +167,11 @@ public class Robot extends TimedRobot {
     @Override
     public void teleopPeriodic() {
 
-        if (driveJoystick.getRawButton(2)){
-            driveTrain.setWantedState(DriveState.GOAL_TRACKING);
-        } else {
+        // if (driveJoystick.getRawButton(2)){
+        //     driveTrain.setWantedState(DriveState.GOAL_TRACKING);
+        // } else {
             driveTrain.setWantedState(DriveState.MANUAL);
-        }
+        //}
 
         if (driveJoystick.getTriggerPressed()){
             ballProcessor.setProcessorState(BallProcessState.COLLECTING);
@@ -180,7 +180,7 @@ public class Robot extends TimedRobot {
             ballProcessor.setProcessorState(BallProcessState.LOADED);
         }
 
-        if (driveJoystick.getRawButtonPressed(10)) {
+        if (driveJoystick.getRawButtonPressed(9)) {
             climber.climberToggle();
         }
 

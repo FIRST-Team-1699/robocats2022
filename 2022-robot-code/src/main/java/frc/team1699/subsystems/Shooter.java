@@ -19,17 +19,17 @@ public class Shooter {
     static final double kD = 0.2;
 
     //error variables
-    int kErrThreshold = 50; // how many sensor units until its close-enough
+    int kErrThreshold = 100; // how many sensor units until its close-enough
 
     public static final int kPIDLoopIDX = 0; //just leave this at 0 its for if u want more than 1 loop
     public static final int kTimeoutMs = 100;
 
-    public final Gains kVelocityPIDGains = new Gains(0.25, 0.001, 20.0, 1023.0/7200.0, 1.0, 300);
+    public final Gains kVelocityPIDGains = new Gains(0.16, 0.0004, 0.4096, 0.03, 1.0, 300);
     
     private double targetVelocity_UnitsPer100ms = 0.0;
 
-    private final double idle_UnitsPer100ms = 0.0; //target velocity when its "running"
-    private final double shooting_UnitsPer100ms = 19000.0; //the target velocity while shooting
+    private final double idle_UnitsPer100ms = 9000.0; //target velocity when its "running"
+    private final double shooting_UnitsPer100ms = 18000.0; //the target velocity while shooting
 
     public boolean shooterAtSpeed = false;
     private int atSpeedTicks = 0;
@@ -102,7 +102,7 @@ public class Shooter {
                 if (shooterMotorStar.getClosedLoopError() < +kErrThreshold &&  //if the speed is correct
                     shooterMotorStar.getClosedLoopError() > -kErrThreshold) {
                         
-                    if (atSpeedTicks >= 10) { //if its been at speed for a while
+                    if (atSpeedTicks >= 20) { //if its been at speed for a while
                         retractHopperStopper();
                         shooterAtSpeed = true; //sends a signal to start feeding into the shooter
                         //this will make the motors slow down, causing them to go back to the speeding up phase
@@ -126,7 +126,7 @@ public class Shooter {
                 break;
         }
         shooterMotorStar.set(com.ctre.phoenix.motorcontrol.TalonSRXControlMode.Velocity, -targetVelocity_UnitsPer100ms);
-        //System.out.println("Target: " + targetVelocity_UnitsPer100ms + " Error: " + shooterMotorPort.getClosedLoopError(kPIDLoopIDX) + " Output: " + shooterMotorPort.getMotorOutputPercent());
+        System.out.println("Target: " + targetVelocity_UnitsPer100ms + " Error: " + shooterMotorPort.getClosedLoopError(kPIDLoopIDX) + " Output: " + shooterMotorPort.getMotorOutputPercent());
     }
 
     public void setWantedState(final ShooterState wantedState) {
