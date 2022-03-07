@@ -10,7 +10,8 @@ public class BallProcessor {
         COLLECTING, //sucking in balls
         RETRACTING, //spin hopper for a bit then turn it off and bring up intake
         LOADED, //1 or 2 balls and hopper is off
-        SHOOTING   //retracts the hopper stopper and pushes balls to shoot them
+        SHOOTING,   //retracts the hopper stopper and pushes balls to shoot them
+        PURGING //i frew up :(
     }
     private final Shooter shooter;
     private final IntakeHopper intakeHopp;
@@ -66,14 +67,11 @@ public class BallProcessor {
                 shooter.setWantedState(ShooterState.RUNNING);
             break;
 
-            case SHOOTING: //TODO use drivtrain to do aiming
+            case SHOOTING:
                 
                 //stop feeding if it's been going for too long (ie. if its empty)
-                if (shootingTicks >= maxShootingTicks) { //TODO check number
-                    //checks if the hopper has been trying to push a ball into the hopper for over a second
-                    currentState = BallProcessState.EMPTY;
-
-                    shootingTicks = 0;
+                if (shootingTicks >= maxShootingTicks) {
+                    stopShooting();
                     break;
                 }
 
@@ -88,13 +86,18 @@ public class BallProcessor {
                     shootingTicks = 0;
                 }
                 break;
+            
+            case PURGING: // this state is to push the balls through the shooter at low speed.
+                shooter.retractHopperStopper();
+                intakeHopp.setWantedState(IntakeStates.RUNHOP);
+                
+            break;
         }
     }
     public void startShooting(){
         currentState = BallProcessState.SHOOTING;
         shootingTicks = 0;
         shooter.setWantedState(ShooterState.SHOOT);
-        //TODO make the drivetrain start aiming
     }
     public void stopShooting(){
         currentState = BallProcessState.LOADED;

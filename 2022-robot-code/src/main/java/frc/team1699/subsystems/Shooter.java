@@ -7,19 +7,11 @@ import frc.team1699.utils.Gains;
 import frc.team1699.utils.sim.PhysicsSim;
 import com.ctre.phoenix.motorcontrol.InvertType;
 
-//TODO Fix
 //public class Shooter implements Subsystem{ 
 public class Shooter {
 
-    //TODO numbers
-    //Control loop constants
-    static final double kP = 0.2;
-    static final double kI = 0;
-    static final double kF = 0;
-    static final double kD = 0.2;
-
     //error variables
-    int kErrThreshold = 100; // how many sensor units until its close-enough
+    int kErrThreshold = 100; // IF THIS IS LESS THAN 100 YOU MIGHT POP BALLS
 
     public static final int kPIDLoopIDX = 0; //just leave this at 0 its for if u want more than 1 loop
     public static final int kTimeoutMs = 100;
@@ -160,7 +152,11 @@ public class Shooter {
     public ShooterState getCurrentState() {
         return currentState;
     }
-    
+
+
+
+
+
     //make the hood do stuff
     public void toggleHood() {
         toggleSolenoid(hoodSolenoid);
