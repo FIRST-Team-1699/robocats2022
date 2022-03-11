@@ -180,17 +180,17 @@ public class Robot extends TimedRobot {
             ballProcessor.setProcessorState(BallProcessState.LOADED);
         }
 
-        if (driveJoystick.getRawButtonPressed(9)) {
+        if (opJoystick.getRawButtonPressed(9)) {
             climber.climberToggle();
         }
 
-        if (driveJoystick.getRawButtonPressed(3)) {
+        if (opJoystick.getRawButtonPressed(3)) {
             ballProcessor.startShooting();
         }
-        if (driveJoystick.getRawButtonReleased(3)) {
+        if (opJoystick.getRawButtonReleased(3)) {
             ballProcessor.stopShooting();
         }
-        if (driveJoystick.getRawButtonPressed(11)) {
+        if (opJoystick.getRawButtonPressed(11)) {
             shooter.toggleHood();
         }
 
