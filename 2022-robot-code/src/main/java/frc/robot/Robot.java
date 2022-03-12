@@ -45,8 +45,8 @@ public class Robot extends TimedRobot {
     private DoubleSolenoid intakeSolenoid, hopperStopper, shooterAngleSolenoid, climberSolenoidPort;
     //private AdaFruitBeamBreak intakeBreak, hopperBreak;
     private LimitSwitch shooterBreak;
-
-    double autotarget = 60000.0;
+    private int adjTicks = 0;
+    double autotarget = 62000.0;
     private boolean moveDone;
     private boolean linedUp;
 
@@ -75,6 +75,8 @@ public class Robot extends TimedRobot {
         starDriveFollower1.setNeutralMode(NeutralMode.Brake);
         starDriveFollower2.setNeutralMode(NeutralMode.Brake);
 
+        portDriveMaster.configOpenloopRamp(0.1);
+        starDriveMaster.configOpenloopRamp(0.1);
         
 
         //Setup drive train
@@ -137,7 +139,6 @@ public class Robot extends TimedRobot {
     public void autonomousPeriodic() {
         
         double forward = 0.0, turn = 0.0;
-        int intaketicks = 0;
         if (!moveDone) {
             System.out.println("cool im in not done");
             if (portDriveMaster.getSelectedSensorPosition() >= autotarget){
@@ -151,29 +152,36 @@ public class Robot extends TimedRobot {
                 forward = 0.5;
             }
         }
-        if (moveDone) {
-            if (intaketicks <= 25) {
-                intaketicks++;
-            } else {
-                ballProcessor.setProcessorState(BallProcessState.LOADED);
-            }
+        if (moveDone&&!linedUp) {
             if (LimeLight.getInstance().getTV() < 1) {
                 forward = 0;
                 turn = 0.4;
 
             } else {
                 driveTrain.setWantedState(DriveState.GOAL_TRACKING);
-                linedUp = true;
-            }
-            if (linedUp){
+                ballProcessor.setProcessorState(BallProcessState.LOADED);
+                
                 ballProcessor.startShooting();
             }
+
+        }
+        if (linedUp) {
+            driveTrain.setWantedState(DriveState.AUTONOMOUS);
+            if (adjTicks <= 50){
+                adjTicks++;
+                forward = 0.3;
+                turn = 0.0;
+            } else {
+                forward = 0.0;
+            }
+                
         }
       //  System.out.println(portDriveMaster.getSelectedSensorPosition());
 
       System.out.println(forward);
       driveTrain.setAutoDemand(forward, turn);
 
+        shooter.update();
         intakeHopp.update();
         ballProcessor.update();
         driveTrain.update();

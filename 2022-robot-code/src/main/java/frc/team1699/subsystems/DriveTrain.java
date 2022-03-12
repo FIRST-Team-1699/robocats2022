@@ -25,6 +25,8 @@ public class DriveTrain {
     private boolean isZero = true;
     private boolean isRamping = false;
 
+    public boolean aligned = false;
+
     //aiming constants
     final double kSteer = 0.06;
     final double kDrive = 0.06;
@@ -76,8 +78,10 @@ public class DriveTrain {
         }
 
         if (wantedState == DriveState.MANUAL) {
+            aligned = false;
             handleManualTransition();
         } else if (wantedState == DriveState.GOAL_TRACKING) {
+            aligned = false;
             handleGoalTrackingTransition();
         }
 
@@ -106,13 +110,12 @@ public class DriveTrain {
 
                 LimeLight.getInstance().turnOn();
                 if (LimeLight.getInstance().getTV() > 0){
-                    runArcadeDrive(LimeLight.getInstance().getTX()*kSteer, -(LimeLight.getInstance().getTY()-20)*kDrive);
+                    runArcadeDrive(LimeLight.getInstance().getTX()*kSteer, -(LimeLight.getInstance().getTY()-20)*kDrive*0);
                 } else {
                     runArcadeDrive(0, 0);
                     System.out.println("no target");
                 }
 
-                
 
                 break;
             case AUTONOMOUS:
