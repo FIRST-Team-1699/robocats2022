@@ -99,6 +99,15 @@ public class BallProcessor {
         shootingTicks = 0;
         shooter.setWantedState(ShooterState.SHOOT);
     }
+
+    public void startLowerShooting(){
+        currentState = BallProcessState.SHOOTING;
+        shootingTicks = 0;
+        shooter.setWantedState(ShooterState.SHOOT);
+        //default is 18k
+        shooter.setShooterGoal(12000.0);
+    }
+    
     public void stopShooting(){
         currentState = BallProcessState.LOADED;
         shootingTicks = 0;

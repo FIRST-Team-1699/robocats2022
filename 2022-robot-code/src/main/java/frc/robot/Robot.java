@@ -8,6 +8,7 @@ import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Filesystem;
 import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import edu.wpi.first.cameraserver.CameraServer;
 import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableEntry;
 import edu.wpi.first.networktables.NetworkTableInstance;
@@ -105,6 +106,8 @@ public class Robot extends TimedRobot {
         portDriveMaster.configFactoryDefault();
         portDriveMaster.setSelectedSensorPosition(0.0);
 
+        CameraServer.startAutomaticCapture();
+
     }
 
     DigitalInput testBreak1 = new DigitalInput(0);
@@ -190,9 +193,17 @@ public class Robot extends TimedRobot {
         if (opJoystick.getRawButtonReleased(3)) {
             ballProcessor.stopShooting();
         }
+        if (opJoystick.getRawButtonPressed(4)){
+            ballProcessor.startLowerShooting();
+        }
+        if (opJoystick.getRawButtonReleased(4)){
+            ballProcessor.stopShooting();
+        }
         if (opJoystick.getRawButtonPressed(11)) {
             shooter.toggleHood();
         }
+
+
 
         ballProcessor.update();
         shooter.update();

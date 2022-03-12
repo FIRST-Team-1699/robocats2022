@@ -11,7 +11,7 @@ import com.ctre.phoenix.motorcontrol.InvertType;
 public class Shooter {
 
     //error variables
-    int kErrThreshold = 100; // IF THIS IS LESS THAN 100 YOU MIGHT POP BALLS
+    int kErrThreshold = 130; // IF THIS IS LESS THAN 100 YOU MIGHT POP BALLS
 
     public static final int kPIDLoopIDX = 0; //just leave this at 0 its for if u want more than 1 loop
     public static final int kTimeoutMs = 100;
@@ -205,6 +205,10 @@ public class Shooter {
     public void retractHopperStopper() {
         hoppaStoppa.set(DoubleSolenoid.Value.kReverse);
         stopperDeployed = false;
+    }
+
+    public void setShooterGoal(double targ) {
+        targetVelocity_UnitsPer100ms = targ;
     }
 
 
