@@ -48,6 +48,7 @@ public class Robot extends TimedRobot {
 
     double autotarget = 60000.0;
     private boolean moveDone;
+    private boolean linedUp;
 
     @Override
     public void robotInit() {
@@ -108,6 +109,9 @@ public class Robot extends TimedRobot {
 
         CameraServer.startAutomaticCapture();
 
+        LimeLight.getInstance().turnOn();
+
+
     }
 
     DigitalInput testBreak1 = new DigitalInput(0);
@@ -122,14 +126,16 @@ public class Robot extends TimedRobot {
     public void autonomousInit() {
         portDriveMaster.setSelectedSensorPosition(0.0);
         moveDone = false;
+        linedUp = false;
         LimeLight.getInstance().turnOn();
 
+        driveTrain.setWantedState(DriveState.AUTONOMOUS);
         ballProcessor.setProcessorState(BallProcessState.COLLECTING);
     }
 
     @Override
     public void autonomousPeriodic() {
-        driveTrain.setWantedState(DriveState.AUTONOMOUS);
+        
         double forward = 0.0, turn = 0.0;
         int intaketicks = 0;
         if (!moveDone) {
@@ -146,15 +152,21 @@ public class Robot extends TimedRobot {
             }
         }
         if (moveDone) {
+            if (intaketicks <= 25) {
+                intaketicks++;
+            } else {
+                ballProcessor.setProcessorState(BallProcessState.LOADED);
+            }
             if (LimeLight.getInstance().getTV() < 1) {
                 forward = 0;
                 turn = 0.4;
 
-                if (intaketicks <= 25) {
-                    intaketicks++;
-                } else {
-                    ballProcessor.setProcessorState(BallProcessState.LOADED);
-                }
+            } else {
+                driveTrain.setWantedState(DriveState.GOAL_TRACKING);
+                linedUp = true;
+            }
+            if (linedUp){
+                ballProcessor.startShooting();
             }
         }
       //  System.out.println(portDriveMaster.getSelectedSensorPosition());
@@ -170,11 +182,11 @@ public class Robot extends TimedRobot {
     @Override
     public void teleopPeriodic() {
 
-        // if (driveJoystick.getRawButton(2)){
-        //     driveTrain.setWantedState(DriveState.GOAL_TRACKING);
-        // } else {
+        if (driveJoystick.getRawButton(2)){
+            driveTrain.setWantedState(DriveState.GOAL_TRACKING);
+        } else {
             driveTrain.setWantedState(DriveState.MANUAL);
-        //}
+        }
 
         if (driveJoystick.getTriggerPressed()){
             ballProcessor.setProcessorState(BallProcessState.COLLECTING);

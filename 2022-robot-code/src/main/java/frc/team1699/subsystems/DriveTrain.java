@@ -27,7 +27,7 @@ public class DriveTrain {
 
     //aiming constants
     final double kSteer = 0.06;
-    final double kDrive = 0.26;
+    final double kDrive = 0.06;
 
     double autoFwdDemand = 0.0;
     double autoTurnDemand = 0.0;
@@ -89,7 +89,7 @@ public class DriveTrain {
     }
 
     private void handleManualTransition() {
-        LimeLight.getInstance().turnOff();
+        // LimeLight.getInstance().turnOff();
     }
 
     private void handleGoalTrackingTransition() {
@@ -104,7 +104,15 @@ public class DriveTrain {
                 break;
             case GOAL_TRACKING:
 
-                runArcadeDrive(LimeLight.getInstance().getTX()*kSteer, LimeLight.getInstance().getTY()*kDrive);
+                LimeLight.getInstance().turnOn();
+                if (LimeLight.getInstance().getTV() > 0){
+                    runArcadeDrive(LimeLight.getInstance().getTX()*kSteer, -(LimeLight.getInstance().getTY()-20)*kDrive);
+                } else {
+                    runArcadeDrive(0, 0);
+                    System.out.println("no target");
+                }
+
+                
 
                 break;
             case AUTONOMOUS:
