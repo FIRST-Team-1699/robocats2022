@@ -56,7 +56,7 @@ public class Shooter {
 
     public Shooter(final TalonSRX portMotor, final TalonSRX starMotor, final DoubleSolenoid hoodSolenoid, final DoubleSolenoid hoppaStoppa) {
         this.shooterMotorPort = starMotor;
-        this.shooterMotorStar = portMotor;
+        this.shooterMotorStar = portMotor;  // its too late to fix this but we got the motors reversed lol
         this.hoodSolenoid = hoodSolenoid;
         this.hoppaStoppa = hoppaStoppa; //this is the hopper stopper, the stopper in the hopper. its stops the balls. NO I WILL NOT CHANGE ITS NAME.
         this.currentPosition = HoodPosition.DOWN;
