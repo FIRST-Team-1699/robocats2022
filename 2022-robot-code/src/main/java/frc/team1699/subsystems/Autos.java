@@ -1,6 +1,7 @@
 package frc.team1699.subsystems;
 
 import frc.team1699.Constants;
+import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Compressor;
 import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.DoubleSolenoid;
@@ -78,7 +79,7 @@ public class Autos {
         driveTrain.setWantedState(DriveState.AUTONOMOUS);
         ballProcessor.setProcessorState(BallProcessState.COLLECTING);
     }
-
+    
     public void twoBallPeriodic(){
         
 
@@ -126,5 +127,9 @@ public class Autos {
         intakeHopp.update();
         ballProcessor.update();
         driveTrain.update();
+    }
+
+    public void sitThenGo(){
+    
     }
 }
