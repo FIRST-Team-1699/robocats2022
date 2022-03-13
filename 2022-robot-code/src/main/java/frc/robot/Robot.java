@@ -46,7 +46,7 @@ public class Robot extends TimedRobot {
     //private AdaFruitBeamBreak intakeBreak, hopperBreak;
     private LimitSwitch shooterBreak;
     private int adjTicks = 0;
-    double autotarget = 62000.0;
+    double autotarget = 68000.0;
     private boolean moveDone;
     private boolean linedUp;
 
@@ -161,21 +161,21 @@ public class Robot extends TimedRobot {
                 driveTrain.setWantedState(DriveState.GOAL_TRACKING);
                 ballProcessor.setProcessorState(BallProcessState.LOADED);
                 
-                ballProcessor.startShooting();
+               // ballProcessor.startShooting();
             }
 
         }
-        if (linedUp) {
-            driveTrain.setWantedState(DriveState.AUTONOMOUS);
-            if (adjTicks <= 50){
-                adjTicks++;
-                forward = 0.3;
-                turn = 0.0;
-            } else {
-                forward = 0.0;
-            }
+        // if (linedUp) {
+        //     driveTrain.setWantedState(DriveState.AUTONOMOUS);
+        //     if (adjTicks <= 50){
+        //         adjTicks++;
+        //         forward = 0.3;
+        //         turn = 0.0;
+        //     } else {
+        //         forward = 0.0;
+        //     }
                 
-        }
+        // }
       //  System.out.println(portDriveMaster.getSelectedSensorPosition());
 
       System.out.println(forward);

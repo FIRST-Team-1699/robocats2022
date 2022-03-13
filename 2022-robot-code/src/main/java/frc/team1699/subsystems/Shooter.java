@@ -6,6 +6,7 @@ import com.ctre.phoenix.motorcontrol.can.TalonSRX;
 import frc.team1699.utils.Gains;
 import frc.team1699.utils.sim.PhysicsSim;
 import com.ctre.phoenix.motorcontrol.InvertType;
+import frc.team1699.utils.sensors.LimeLight;
 
 //public class Shooter implements Subsystem{ 
 public class Shooter {
@@ -20,6 +21,7 @@ public class Shooter {
     
     private double targetVelocity_UnitsPer100ms = 0.0;
 
+
     private final double idle_UnitsPer100ms = 9000.0; //target velocity when its "running"
 
 
@@ -27,7 +29,7 @@ public class Shooter {
 
 
 
-    private final double shooting_UnitsPer100ms = 20500.0; //the target velocity while shooting
+    private final double shooting_UnitsPer100ms = 20000.0; //the target velocity while shooting
 
 
 
@@ -76,6 +78,8 @@ public class Shooter {
         portMotor.config_kP(kPIDLoopIDX, kVelocityPIDGains.kP, kTimeoutMs);
         portMotor.config_kI(kPIDLoopIDX, kVelocityPIDGains.kI, kTimeoutMs);
         portMotor.config_kD(kPIDLoopIDX, kVelocityPIDGains.kD, kTimeoutMs);
+
+        LimeLight.getInstance().turnOn();
     }
 
     public void simulationInit() {
@@ -109,7 +113,6 @@ public class Shooter {
                         retractHopperStopper();
                         shooterAtSpeed = true; //sends a signal to start feeding into the shooter
                         //this will make the motors slow down, causing them to go back to the speeding up phase
-                        
                     }
                     atSpeedTicks ++;
                 
@@ -128,8 +131,10 @@ public class Shooter {
                 currentState = ShooterState.UNINITIALIZED;
                 break;
         }
+
+        System.out.println(calculateShooterSpeed(LimeLight.getInstance().getTY()));
         shooterMotorStar.set(com.ctre.phoenix.motorcontrol.TalonSRXControlMode.Velocity, -targetVelocity_UnitsPer100ms);
-        System.out.println("Target: " + targetVelocity_UnitsPer100ms + " Error: " + shooterMotorPort.getClosedLoopError(kPIDLoopIDX) + " Output: " + shooterMotorPort.getMotorOutputPercent());
+      //  System.out.println("Target: " + targetVelocity_UnitsPer100ms + " Error: " + shooterMotorPort.getClosedLoopError(kPIDLoopIDX) + " Output: " + shooterMotorPort.getMotorOutputPercent());
     }
 
     public void setWantedState(final ShooterState wantedState) {
@@ -147,14 +152,22 @@ public class Shooter {
                 shooterAtSpeed = false;
                 break;
             case RUNNING:
+
                 targetVelocity_UnitsPer100ms = idle_UnitsPer100ms;
+
                 deployHopperStopper();
                 currentState = ShooterState.RUNNING;
                 shooterAtSpeed = false;
                 atSpeedTicks = 0;
                 break;
             case SHOOT:
+            
+
+            if (LimeLight.getInstance().getTV()<=1){
                 targetVelocity_UnitsPer100ms = shooting_UnitsPer100ms;
+            } else {
+                targetVelocity_UnitsPer100ms = calculateShooterSpeed(LimeLight.getInstance().getTY());
+            }
                 currentState = ShooterState.SHOOT;
                 break;
         }
@@ -163,10 +176,6 @@ public class Shooter {
     public ShooterState getCurrentState() {
         return currentState;
     }
-
-
-
-
 
     //make the hood do stuff
     public void toggleHood() {
@@ -241,4 +250,11 @@ public class Shooter {
             solenoid.set(DoubleSolenoid.Value.kForward);
         }
     }
+
+    //this takes the limelight y value to see how fast it shoots
+    //we hope it works because if not we have to copy more 254 code
+    public double calculateShooterSpeed(double llY){
+        return ((llY * -163) + 17519);
+    }
+
 }
