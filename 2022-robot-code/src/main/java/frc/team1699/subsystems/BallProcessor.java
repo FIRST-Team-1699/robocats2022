@@ -87,9 +87,9 @@ public class BallProcessor {
                 }
                 break;
             
-            case PURGING: // this state is to push the balls through the shooter at low speed.
-                shooter.retractHopperStopper();
-                intakeHopp.setWantedState(IntakeStates.RUNHOP);
+            case PURGING:
+
+                intakeHopp.setWantedState(IntakeStates.BACKDRIVE);
                 
             break;
         }

@@ -131,13 +131,21 @@ public class Robot extends TimedRobot {
         linedUp = false;
         LimeLight.getInstance().turnOn();
 
+        shooter.toggleSolenoid(shooterAngleSolenoid);
+
         driveTrain.setWantedState(DriveState.AUTONOMOUS);
         ballProcessor.setProcessorState(BallProcessState.COLLECTING);
     }
 
     @Override
     public void autonomousPeriodic() {
+
+
+
+                            shooter.hoodUp(); //you would think this would be easy
         
+        
+
         double forward = 0.0, turn = 0.0;
         if (!moveDone) {
             System.out.println("cool im in not done");
@@ -161,22 +169,22 @@ public class Robot extends TimedRobot {
                 driveTrain.setWantedState(DriveState.GOAL_TRACKING);
                 ballProcessor.setProcessorState(BallProcessState.LOADED);
                 
-               // ballProcessor.startShooting();
+               ballProcessor.startShooting();
             }
 
         }
-        // if (linedUp) {
-        //     driveTrain.setWantedState(DriveState.AUTONOMOUS);
-        //     if (adjTicks <= 50){
-        //         adjTicks++;
-        //         forward = 0.3;
-        //         turn = 0.0;
-        //     } else {
-        //         forward = 0.0;
-        //     }
-                
-        // }
-      //  System.out.println(portDriveMaster.getSelectedSensorPosition());
+        if (linedUp) {
+            // driveTrain.setWantedState(DriveState.AUTONOMOUS);
+            // if (adjTicks <= 50){
+            //     adjTicks++;
+            //     forward = 0.3;
+            //     turn = 0.0;
+            // } else {
+            //     forward = 0.0;,
+            // }
+            ballProcessor.startShooting();
+        }
+       System.out.println(portDriveMaster.getSelectedSensorPosition());
 
       System.out.println(forward);
       driveTrain.setAutoDemand(forward, turn);
@@ -188,12 +196,28 @@ public class Robot extends TimedRobot {
     }
 
     @Override
+    public void teleopInit() {
+        ballProcessor.stopShooting();
+
+
+    }
+
+    @Override
     public void teleopPeriodic() {
 
         if (driveJoystick.getRawButton(2)){
+            LimeLight.getInstance().turnOn();
             driveTrain.setWantedState(DriveState.GOAL_TRACKING);
         } else {
+            LimeLight.getInstance().turnOff();
             driveTrain.setWantedState(DriveState.MANUAL);
+        }
+
+        if (opJoystick.getRawButtonPressed(1)){
+            LimeLight.getInstance().turnOn();
+        }
+        if (opJoystick.getRawButtonReleased(1)){
+            LimeLight.getInstance().turnOff();
         }
 
         if (driveJoystick.getTriggerPressed()){
@@ -219,11 +243,16 @@ public class Robot extends TimedRobot {
         if (opJoystick.getRawButtonReleased(4)){
             ballProcessor.stopShooting();
         }
-        if (opJoystick.getRawButtonPressed(11)) {
+        if (opJoystick.getRawButtonPressed(5)) {
             shooter.toggleHood();
         }
 
-
+        if (driveJoystick.getRawButtonPressed(3)){
+            ballProcessor.setProcessorState(BallProcessState.PURGING);
+        }
+        if (driveJoystick.getRawButtonReleased(3)) {
+            ballProcessor.setProcessorState(BallProcessState.LOADED);
+        }                                              
 
         ballProcessor.update();
         shooter.update();

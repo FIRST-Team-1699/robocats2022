@@ -6,13 +6,15 @@ import com.ctre.phoenix.motorcontrol.can.TalonSRX;
 import frc.team1699.utils.Gains;
 import frc.team1699.utils.sim.PhysicsSim;
 import com.ctre.phoenix.motorcontrol.InvertType;
+import com.ctre.phoenix.motorcontrol.TalonSRXControlMode;
+
 import frc.team1699.utils.sensors.LimeLight;
 
 //public class Shooter implements Subsystem{ 
 public class Shooter {
 
     //error variables
-    int kErrThreshold = 130; // IF THIS IS LESS THAN 100 YOU MIGHT POP BALLS
+    int kErrThreshold = 100; // IF THIS IS LESS THAN 100 YOU MIGHT POP BALLS
 
     public static final int kPIDLoopIDX = 0; //just leave this at 0 its for if u want more than 1 loop
     public static final int kTimeoutMs = 100;
@@ -42,6 +44,7 @@ public class Shooter {
     private ShooterState currentState, wantedState = ShooterState.UNINITIALIZED;
     private HoodPosition currentPosition;
     private final DoubleSolenoid hoodSolenoid;
+
 
     //hoppaStoppa is the flipper in the hopper on a double action solenoid that stops the balls from going into the shooter
     //when it is deployed, the balls can't move through to the shooter
@@ -91,7 +94,6 @@ public class Shooter {
     }
 
     public void update() {
-        
         switch (currentState) {
             case UNINITIALIZED:
 
@@ -101,9 +103,8 @@ public class Shooter {
                 break;
 
             case RUNNING:
-
+            
                 break;
-
             case SHOOT:
                 //wait until the thingy is up to speed, and then open the hopper    
                 if (shooterMotorStar.getClosedLoopError() < +kErrThreshold &&  //if the speed is correct
@@ -132,7 +133,7 @@ public class Shooter {
                 break;
         }
 
-        System.out.println(calculateShooterSpeed(LimeLight.getInstance().getTY()));
+        System.out.println("Target: " + calculateShooterSpeed(LimeLight.getInstance().getTY() * (600/2048)) + " - Actual: " + targetVelocity_UnitsPer100ms);
         shooterMotorStar.set(com.ctre.phoenix.motorcontrol.TalonSRXControlMode.Velocity, -targetVelocity_UnitsPer100ms);
       //  System.out.println("Target: " + targetVelocity_UnitsPer100ms + " Error: " + shooterMotorPort.getClosedLoopError(kPIDLoopIDX) + " Output: " + shooterMotorPort.getMotorOutputPercent());
     }
@@ -153,8 +154,11 @@ public class Shooter {
                 break;
             case RUNNING:
 
-                targetVelocity_UnitsPer100ms = idle_UnitsPer100ms;
-
+                if(LimeLight.getInstance().getTV() > 0){
+                    targetVelocity_UnitsPer100ms = calculateShooterSpeed(LimeLight.getInstance().getTY());
+                }else{
+                    targetVelocity_UnitsPer100ms = idle_UnitsPer100ms;
+                }
                 deployHopperStopper();
                 currentState = ShooterState.RUNNING;
                 shooterAtSpeed = false;
@@ -163,8 +167,12 @@ public class Shooter {
             case SHOOT:
             
 
-            if (LimeLight.getInstance().getTV()<=1){
-                targetVelocity_UnitsPer100ms = shooting_UnitsPer100ms;
+            if (LimeLight.getInstance().getTV()<1){
+                if(hoodSolenoid.get() == DoubleSolenoid.Value.kForward){
+                    targetVelocity_UnitsPer100ms = 17000;
+                }else{
+                    targetVelocity_UnitsPer100ms = shooting_UnitsPer100ms;
+                }
             } else {
                 targetVelocity_UnitsPer100ms = calculateShooterSpeed(LimeLight.getInstance().getTY());
             }
@@ -194,20 +202,16 @@ public class Shooter {
         }
     }  
     public void hoodUp(){
-        if (isHoodUp()){
-            return;
-        } else {
+        if(hoodSolenoid.get() == DoubleSolenoid.Value.kForward){
             toggleSolenoid(hoodSolenoid);
-            currentPosition = HoodPosition.UP;
         }
+        currentPosition = HoodPosition.UP;
     }
     public void hoodDown() {
-        if (!isHoodUp()){
-            return;
-        } else {
+        if(hoodSolenoid.get() == DoubleSolenoid.Value.kReverse){
             toggleSolenoid(hoodSolenoid);
-            currentPosition = HoodPosition.DOWN;
         }
+        currentPosition = HoodPosition.DOWN;
     }
 
     //methods for the hopper stopper! they public so they can be used in the ball processor
@@ -237,13 +241,13 @@ public class Shooter {
         DOWN
     }
 
-    enum ShooterState {
+    public enum ShooterState {
         UNINITIALIZED,
         RUNNING,
         SHOOT,
         STOPPED
     }
-    private void toggleSolenoid(final DoubleSolenoid solenoid){
+    public void toggleSolenoid(final DoubleSolenoid solenoid){
         if(solenoid.get() == DoubleSolenoid.Value.kForward){
             solenoid.set(DoubleSolenoid.Value.kReverse);
         }else{
@@ -254,7 +258,9 @@ public class Shooter {
     //this takes the limelight y value to see how fast it shoots
     //we hope it works because if not we have to copy more 254 code
     public double calculateShooterSpeed(double llY){
-        return ((llY * -163) + 17519);
-    }
 
+        //System.out.println(((llY * -163) + 19712));
+        return ((llY * -163) + 20500);
+      //  return 20000 - 209 * llY + 3.84 * (llY*llY);
+    }
 }
