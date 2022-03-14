@@ -41,7 +41,6 @@ public class Autos {
 
     double autotarget = 68000.0; // a somewhat arbitrary distance that we know gets off the tarmac
     boolean moveDone;
-    boolean linedUp;
 
     //set up my thingies
     private BallProcessor ballProcessor;
@@ -71,7 +70,6 @@ public class Autos {
     public void twoBallInit(){
         portDriveMaster.setSelectedSensorPosition(0.0);
         moveDone = false;
-        linedUp = false;
         LimeLight.getInstance().turnOn();
 
         shooter.toggleSolenoid(shooterAngleSolenoid);
@@ -90,24 +88,20 @@ public class Autos {
 
         double forward = 0.0, turn = 0.0;
         if (!moveDone) {
-            System.out.println("cool im in not done");
-            if (portDriveMaster.getSelectedSensorPosition() >= autotarget){
-                System.out.println("cool");
 
-
-                
+            if (portDriveMaster.getSelectedSensorPosition() >= autotarget){ //moves until the target has been reached
                 moveDone = true;
+
             } else {
-                System.out.println("cool i should be moving???????");
                 forward = 0.5;
             }
         }
-        if (moveDone&&!linedUp) {
-            if (LimeLight.getInstance().getTV() < 1) {
+        if (moveDone) { //once the distance has been reached...
+            if (LimeLight.getInstance().getTV() < 1) { //if there is no target yet...
                 forward = 0;
-                turn = 0.4;
+                turn = 0.4; //start spinning to look for the goal
 
-            } else {
+            } else { //if it sees the target, shoot.
                 driveTrain.setWantedState(DriveState.GOAL_TRACKING);
                 ballProcessor.setProcessorState(BallProcessState.LOADED);
                 
@@ -115,13 +109,8 @@ public class Autos {
             }
 
         }
-        if (linedUp) {
-            ballProcessor.startShooting();
-        }
-       System.out.println(portDriveMaster.getSelectedSensorPosition());
 
-      System.out.println(forward);
-      driveTrain.setAutoDemand(forward, turn);
+        driveTrain.setAutoDemand(forward, turn);
 
         shooter.update();
         intakeHopp.update();
@@ -129,7 +118,22 @@ public class Autos {
         driveTrain.update();
     }
 
-    public void sitThenGo(){
-    
+    public void sitThenGoInit(){
+        portDriveMaster.setSelectedSensorPosition(0.0);
+        driveTrain.setWantedState(DriveState.AUTONOMOUS);
+    }
+
+    public void sitThenGoPeriodic(){
+        double forward = 0.0, turn = 0.0;
+
+        if (DriverStation.getMatchTime() <= 5){           //this will wait until there is 5 seconds left in auto and make it go forward
+            if (portDriveMaster.getSelectedSensorPosition() < autotarget){
+                forward = 0.5;
+            } else {
+                forward = 0;
+            }
+        }
+        driveTrain.setAutoDemand(forward, turn);
+        driveTrain.update();
     }
 }
