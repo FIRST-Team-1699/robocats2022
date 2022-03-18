@@ -169,7 +169,7 @@ public class Robot extends TimedRobot {
                 driveTrain.setWantedState(DriveState.GOAL_TRACKING);
                 ballProcessor.setProcessorState(BallProcessState.LOADED);
                 
-               ballProcessor.startShooting();
+                ballProcessor.startShooting();
             }
 
         }
@@ -198,7 +198,7 @@ public class Robot extends TimedRobot {
     @Override
     public void teleopInit() {
         ballProcessor.stopShooting();
-
+        driveTrain.setWantedState(DriveState.MANUAL);
 
     }
 
@@ -208,7 +208,9 @@ public class Robot extends TimedRobot {
         if (driveJoystick.getRawButton(2)){
             LimeLight.getInstance().turnOn();
             driveTrain.setWantedState(DriveState.GOAL_TRACKING);
-        } else {
+        }
+        
+        if (driveJoystick.getRawButtonReleased(2)){
             LimeLight.getInstance().turnOff();
             driveTrain.setWantedState(DriveState.MANUAL);
         }
@@ -252,8 +254,13 @@ public class Robot extends TimedRobot {
         }
         if (driveJoystick.getRawButtonReleased(3)) {
             ballProcessor.setProcessorState(BallProcessState.LOADED);
-        }                                              
-
+        }      
+        if (opJoystick.getRawButtonPressed(1)){
+            LimeLight.getInstance().turnOn();
+        }                                        
+        if (opJoystick.getRawButtonReleased(1)){
+            LimeLight.getInstance().turnOff();
+        }   
         ballProcessor.update();
         shooter.update();
         driveTrain.update();

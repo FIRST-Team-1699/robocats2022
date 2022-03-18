@@ -28,7 +28,7 @@ public class DriveTrain {
     public boolean aligned = false;
 
     //aiming constants
-    final double kSteer = 0.03;
+    final double kSteer = 0.05;
     final double kDrive = 0.06;
 
     double autoFwdDemand = 0.0;
