@@ -19,6 +19,7 @@ import frc.team1699.subsystems.BallProcessor.BallProcessState;
 import frc.team1699.subsystems.DriveTrain;
 import frc.team1699.subsystems.DriveTrain.DriveState;
 import frc.team1699.subsystems.IntakeHopper.IntakeStates;
+import frc.team1699.subsystems.Shooter.ShooterState;
 import frc.team1699.subsystems.IntakeHopper;
 import frc.team1699.subsystems.Climber;
 import frc.team1699.subsystems.Shooter;
@@ -268,15 +269,7 @@ public class Robot extends TimedRobot {
       }
 
     @Override
-    public void testPeriodic() {
-        runTest();
-    }
-
-    private void runTest(){
-
-
-
-
-
+    public void testPeriodic() {climber.climberDown();
+        shooter.setWantedState(ShooterState.STOPPED);
     }
 }
