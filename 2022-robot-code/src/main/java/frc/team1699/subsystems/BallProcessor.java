@@ -18,9 +18,7 @@ public class BallProcessor {
     private BallProcessState currentState = BallProcessState.INIT;
 
     private int shootingTicks = 0;
-    private final int maxShootingTicks = 40; //the maximum time that the hopper should try to push into the shooter
-
-    private int ballsInMe = 1;//TODO make it count the balls if theres a limit switch
+    private final int maxShootingTicks = 50; //the maximum time that the hopper should try to push into the shooter
 
     private int retractingTicks = 0;
 

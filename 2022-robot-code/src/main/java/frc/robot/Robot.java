@@ -40,7 +40,8 @@ public class Robot extends TimedRobot {
     private IntakeHopper intakeHopp;
     private Shooter shooter;
     private BallProcessor ballProcessor;
-    private TalonSRX intakeHoppTalon, shooterTalonPort, shooterTalonStar, hopperTalon;
+    private TalonSRX intakeHoppTalon, hoodTalonPort, hoodTalonStar, hopperTalon;
+    private TalonFX shooterPortFx, shooterStarFx;
     private TalonFX portDriveMaster, portDriveFollower1, portDriveFollower2, starDriveMaster, starDriveFollower1, starDriveFollower2;
     private Compressor compressor;
     private DoubleSolenoid intakeSolenoid, hopperStopper, shooterAngleSolenoid, climberSolenoidPort;
@@ -79,7 +80,6 @@ public class Robot extends TimedRobot {
         portDriveMaster.configOpenloopRamp(0.1);
         starDriveMaster.configOpenloopRamp(0.1);
         
-
         //Setup drive train
         driveTrain = new DriveTrain(portDriveMaster, portDriveFollower1, portDriveFollower2, starDriveMaster, starDriveFollower1, starDriveFollower2, driveJoystick);
 
@@ -87,9 +87,11 @@ public class Robot extends TimedRobot {
         intakeHoppTalon = new TalonSRX(Constants.kIntakeHoppPort);
 
         //Setup shooter motors
-        shooterTalonPort = new TalonSRX(Constants.kPortShooterPort);
-        shooterTalonStar = new TalonSRX(Constants.kStarShooterPort);
+        hoodTalonPort = new TalonSRX(Constants.kPortBackHoodMotor);
+        hoodTalonStar = new TalonSRX(Constants.kStarBackHoodMotor);
 
+        shooterPortFx = new TalonFX(Constants.kPortShooterPort);
+        shooterStarFx = new TalonFX(Constants.kStarShooterPort);
 
         //Setup solenoids
         intakeSolenoid = new DoubleSolenoid(Constants.kIntakeSolenoidModulePort, CTREPCM, Constants.kIntakeSolenoidForwardPort, Constants.kIntakeSolenoidReversePort);
@@ -102,7 +104,7 @@ public class Robot extends TimedRobot {
 
         //Setup ball transfer thingies
         intakeHopp = new IntakeHopper(intakeSolenoid, intakeHoppTalon);
-        shooter = new Shooter(shooterTalonPort, shooterTalonStar, shooterAngleSolenoid, hopperStopper);
+        shooter = new Shooter(hoodTalonPort, hoodTalonStar, shooterAngleSolenoid, hopperStopper, shooterStarFx, shooterPortFx);
         ballProcessor = new BallProcessor(shooter, intakeHopp);
 
         climber = new Climber(climberSolenoidPort);
@@ -212,7 +214,7 @@ public class Robot extends TimedRobot {
         }
         
         if (driveJoystick.getRawButtonReleased(2)){
-            LimeLight.getInstance().turnOff();
+       //     LimeLight.getInstance().turnOff();
             driveTrain.setWantedState(DriveState.MANUAL);
         }
 
@@ -220,7 +222,7 @@ public class Robot extends TimedRobot {
             LimeLight.getInstance().turnOn();
         }
         if (opJoystick.getRawButtonReleased(1)){
-            LimeLight.getInstance().turnOff();
+         //   LimeLight.getInstance().turnOff();
         }
 
         if (driveJoystick.getTriggerPressed()){
@@ -260,7 +262,7 @@ public class Robot extends TimedRobot {
             LimeLight.getInstance().turnOn();
         }                                        
         if (opJoystick.getRawButtonReleased(1)){
-            LimeLight.getInstance().turnOff();
+         //   LimeLight.getInstance().turnOff();
         }   
         ballProcessor.update();
         shooter.update();
