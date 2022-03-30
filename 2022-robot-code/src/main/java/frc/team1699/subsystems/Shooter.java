@@ -16,7 +16,7 @@ import frc.team1699.utils.sensors.LimeLight;
 //public class Shooter implements Subsystem{ 
 public class Shooter {
 
-    private double kMain2TopMult = 0; //3 is good for 4 feet
+    private double kMain2TopMult = 3; //3 is good for 4 feet
 
 
     private double kMainTestSpd = 8000;
@@ -143,6 +143,14 @@ public class Shooter {
             
                 break;
             case SHOOT:
+
+                if (LimeLight.getInstance().getTY() >= -6) {
+                    
+                    hoodSolenoid.set(DoubleSolenoid.Value.kReverse); //this acts as a boolean for speed calculation
+                } else {
+                    hoodSolenoid.set(DoubleSolenoid.Value.kForward);
+                }
+                
                 // if(LimeLight.getInstance().getTV() > 0){
                     targetVelocityTop = calculateTopShooterSpeed(LimeLight.getInstance().getTY());
                     targetVelocityMain = calculateMainShooterSpeed(LimeLight.getInstance().getTY());
@@ -310,15 +318,35 @@ public class Shooter {
     //we hope it works because if not we have to copy more 254 code
     public double calculateTopShooterSpeed(double llY){
 
-        return kMainTestSpd*kMain2TopMult;
+        return calculateMainShooterSpeed(llY) * kMain2TopMult;
 
         //2k low goal
        // return ((llY * -163) + 10000);
 
     }
+    //llY means limelight y
     public double calculateMainShooterSpeed(double llY){
 
-        return kMainTestSpd;
+        /* the hood position will be determined by the limelight
+        // value somehwere else in the code. this will effectivley
+        // switch the shooting mode based on the y value, the
+        // same value used in this method.
+        */
+
+        if(hoodSolenoid.get() == DoubleSolenoid.Value.kForward){
+            return 0.694 * (llY * llY) - 17.5 * llY + 4489;
+
+            //linear??? who knows
+            //return -41.5 * llY + 4303;
+        } else if(hoodSolenoid.get() == DoubleSolenoid.Value.kReverse) {
+            return -2.33 * (llY * llY) -3.82 * llY + 5182;
+
+            //return -29.5 * llY + 5118;
+        } else {
+            //this is just to make vscode happy it will never run
+            return 0.0;
+        }
+        
 
         //5k on main 0 on upper is low goal PERFECTION
      //   return (llY * -163) + 5000;

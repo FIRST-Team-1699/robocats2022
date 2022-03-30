@@ -6,7 +6,7 @@ import frc.team1699.subsystems.Shooter.ShooterState;
 public class BallProcessor {
     public enum BallProcessState {
         INIT, //started
-        EMPTY, //no balls and no hopper spin
+        EMPTY, //no balls and no hopper spin TODO emtpy and collecting can be 1 in the same
         COLLECTING, //sucking in balls
         RETRACTING, //spin hopper for a bit then turn it off and bring up intake
         LOADED, //1 or 2 balls and hopper is off
