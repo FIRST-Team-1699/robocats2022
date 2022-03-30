@@ -144,17 +144,21 @@ public class Shooter {
                 break;
             case SHOOT:
 
-                if (LimeLight.getInstance().getTY() >= -6) {
-                    
+                if (LimeLight.getInstance().getTY() >= -6.0) {
                     hoodSolenoid.set(DoubleSolenoid.Value.kReverse); //this acts as a boolean for speed calculation
                 } else {
-                    hoodSolenoid.set(DoubleSolenoid.Value.kForward);
+                    hoodSolenoid.set(DoubleSolenoid.Value.kForward); //hood up
                 }
                 
-                // if(LimeLight.getInstance().getTV() > 0){
-                    targetVelocityTop = calculateTopShooterSpeed(LimeLight.getInstance().getTY());
-                    targetVelocityMain = calculateMainShooterSpeed(LimeLight.getInstance().getTY());
-                // }
+                if(LimeLight.getInstance().getTV() > 0){
+                    if (LimeLight.getInstance().getTY() < 21.0){
+                        targetVelocityTop = calculateTopShooterSpeed(LimeLight.getInstance().getTY());
+                        targetVelocityMain = calculateMainShooterSpeed(LimeLight.getInstance().getTY());
+                    } else {
+                        targetVelocityMain = 3676.0;
+                        targetVelocityTop = 3676.0 * 3.0;
+                    }
+                }
                 //wait until the thingy is up to speed, and then open the hopper    
                 if (shooterPortFX.getClosedLoopError() < +kErrThreshold &&  //if the speed is correct
                     shooterPortFX.getClosedLoopError() > -kErrThreshold) {
