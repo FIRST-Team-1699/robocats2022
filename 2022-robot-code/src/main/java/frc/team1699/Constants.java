@@ -41,8 +41,8 @@ public class Constants {
 
     //Shooter Angle Solenoid
     public static final int kShooterAngleSolenoidModulePort = 1;
-    public static final int kShooterAngleSolenoidForwardPort = 7;
-    public static final int kShooterAngleSolenoidReversePort = 6;
+    public static final int kShooterAngleSolenoidForwardPort = 6;
+    public static final int kShooterAngleSolenoidReversePort = 7;
 
     //Climber Solenoid - 1 solenoid 2 pistons
     public static final int kPortClimberModulePort = 1;

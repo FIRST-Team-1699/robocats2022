@@ -116,6 +116,8 @@ public class Robot extends TimedRobot {
 
         LimeLight.getInstance().turnOn();
 
+        
+
 
     }
 
@@ -203,6 +205,13 @@ public class Robot extends TimedRobot {
         ballProcessor.stopShooting();
         driveTrain.setWantedState(DriveState.MANUAL);
 
+        shooter.hoodSolenoid.set(DoubleSolenoid.Value.kForward);
+
+
+        if (shooterAngleSolenoid.get() == DoubleSolenoid.Value.kOff){
+            System.out.println("HEY\nHEY\nHEY\nHEY\nHEY\nHEY\nHEY\nHEY\nHEY\nHEY\nHEY\nHEY\nHEY\nHEY\nHEY\nHEY\nHEY\n");
+        }
+
     }
 
     @Override
@@ -248,6 +257,7 @@ public class Robot extends TimedRobot {
         if (opJoystick.getRawButtonReleased(4)){
             ballProcessor.stopShooting();
         }
+
         if (opJoystick.getRawButtonPressed(5)) {
             shooter.toggleHood();
         }

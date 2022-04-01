@@ -95,6 +95,7 @@ public class BallProcessor {
     public void startShooting(){
         currentState = BallProcessState.SHOOTING;
         shootingTicks = 0;
+        shooter.hoodTransition = 0;
         shooter.setWantedState(ShooterState.SHOOT);
     }
 

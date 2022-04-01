@@ -18,11 +18,12 @@ public class Shooter {
 
     private double kMain2TopMult = 3; //3 is good for 4 feet
 
-
     private double kMainTestSpd = 8000;
 
+    public int hoodTransition = 0;
+
     //error variables
-    int kErrThreshold = 400; // IF THIS IS LESS THAN 100 YOU MIGHT POP BALLS
+    int kErrThreshold = 200; // IF THIS IS LESS THAN 100 YOU MIGHT POP BALLS
 
     public static final int kPIDLoopIDX = 0; //just leave this at 0 its for if u want more than 1 loop
     public static final int kTimeoutMs = 100;
@@ -46,7 +47,7 @@ public class Shooter {
 
     private ShooterState currentState, wantedState = ShooterState.UNINITIALIZED;
     private HoodPosition currentPosition;
-    private final DoubleSolenoid hoodSolenoid;
+    public final DoubleSolenoid hoodSolenoid;
 
 
     //hoppaStoppa is the flipper in the hopper on a double action solenoid that stops the balls from going into the shooter
@@ -129,14 +130,13 @@ public class Shooter {
     }
 
     public void update() {
-        System.out.println("Main speed: " + shooterPortFX.getSelectedSensorVelocity() + "\nTop wheel speed: " + topMotorPort.getSelectedSensorVelocity());
+    //    System.out.println("Main speed: " + shooterPortFX.getSelectedSensorVelocity() + "\nTop wheel speed: " + topMotorPort.getSelectedSensorVelocity());
        // System.out.println("Main error: "+ shooterPortFX.getClosedLoopError());
         switch (currentState) {
             case UNINITIALIZED:
 
                 deployHopperStopper();
-                wantedState = ShooterState.RUNNING;
-                handleStateTransition(wantedState);
+                setWantedState(ShooterState.RUNNING);
                 break;
 
             case RUNNING:
@@ -144,11 +144,9 @@ public class Shooter {
                 break;
             case SHOOT:
 
-                if (LimeLight.getInstance().getTY() >= -6.0) {
-                    hoodSolenoid.set(DoubleSolenoid.Value.kReverse); //this acts as a boolean for speed calculation
-                } else {
-                    hoodSolenoid.set(DoubleSolenoid.Value.kForward); //hood up
-                }
+
+
+                hoodTransition++; //this is set to 0 in the start shooting method in ballprocessor
                 
                 if(LimeLight.getInstance().getTV() > 0){
                     if (LimeLight.getInstance().getTY() < 21.0){
@@ -159,10 +157,12 @@ public class Shooter {
                         targetVelocityTop = 3676.0 * 3.0;
                     }
                 }
+
                 //wait until the thingy is up to speed, and then open the hopper    
                 if (shooterPortFX.getClosedLoopError() < +kErrThreshold &&  //if the speed is correct
-                    shooterPortFX.getClosedLoopError() > -kErrThreshold) {
-                        
+                    shooterPortFX.getClosedLoopError() > -kErrThreshold &&
+                    hoodTransition >= 9) { //will always spin up for at least 15 ms
+                    
                     if (atSpeedTicks >= 15) { //if its been at speed for a while
                         retractHopperStopper();
                         shooterAtSpeed = true; //sends a signal to start feeding into the shooter
@@ -235,9 +235,19 @@ public class Shooter {
                 //     targetVelocityMain = shooting_UnitsPer100ms;
                 //     targetVelocityTop = shooting_UnitsPer100ms;
                 // }
+
             } else {
                 targetVelocityTop = calculateTopShooterSpeed(LimeLight.getInstance().getTY());
                 targetVelocityMain = calculateTopShooterSpeed(LimeLight.getInstance().getTY());
+
+                if (LimeLight.getInstance().getTY() >= -6.0) {
+                    System.out.println("im sad");
+                    hoodSolenoid.set(DoubleSolenoid.Value.kReverse); //this acts as a boolean for speed calculation
+                } else {
+                    System.out.println("???");
+                    hoodSolenoid.set(DoubleSolenoid.Value.kForward); //hood up
+                }
+
             }
                 currentState = ShooterState.SHOOT;
                 break;
@@ -347,8 +357,7 @@ public class Shooter {
 
             //return -29.5 * llY + 5118;
         } else {
-            //this is just to make vscode happy it will never run
-            return 0.0;
+            return -2.33 * (llY * llY) -3.82 * llY + 5182;
         }
         
 
