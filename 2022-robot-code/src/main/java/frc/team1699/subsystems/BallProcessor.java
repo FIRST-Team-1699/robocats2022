@@ -18,7 +18,7 @@ public class BallProcessor {
     private BallProcessState currentState = BallProcessState.INIT;
 
     private int shootingTicks = 0;
-    private final int maxShootingTicks = 50; //the maximum time that the hopper should try to push into the shooter
+    private final int maxShootingTicks = 1024; //the maximum time that the hopper should try to push into the shooter
 
     private int retractingTicks = 0;
 
@@ -104,7 +104,7 @@ public class BallProcessor {
         shootingTicks = 0;
         shooter.setWantedState(ShooterState.SHOOT);
         //default is 18k
-        shooter.setShooterGoal(12000.0);
+        shooter.setShooterGoal(0.0);
     }
     
     public void stopShooting(){

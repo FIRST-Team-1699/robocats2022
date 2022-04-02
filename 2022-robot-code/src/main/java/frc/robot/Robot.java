@@ -51,6 +51,7 @@ public class Robot extends TimedRobot {
     double autotarget = 68000.0;
     private boolean moveDone;
     private boolean linedUp;
+    public boolean inAuto;
 
     @Override
     public void robotInit() {
@@ -63,20 +64,21 @@ public class Robot extends TimedRobot {
         portDriveMaster = new TalonFX(Constants.kPortDrivePort1);
         portDriveFollower1 = new TalonFX(Constants.kPortDrivePort2);
         portDriveFollower2 = new TalonFX(Constants.kPortDrivePort3);
-
+/*
         portDriveMaster.setNeutralMode(NeutralMode.Brake);
         portDriveFollower1.setNeutralMode(NeutralMode.Brake);
         portDriveFollower2.setNeutralMode(NeutralMode.Brake);
-
+*/
         //Setup starboard drive motors
         starDriveMaster = new TalonFX(Constants.kStarDrivePort1);
         starDriveFollower1 = new TalonFX(Constants.kStarDrivePort2);
         starDriveFollower2 = new TalonFX(Constants.kStarDrivePort3);
-
+        /*
         starDriveMaster.setNeutralMode(NeutralMode.Brake);
         starDriveFollower1.setNeutralMode(NeutralMode.Brake);
         starDriveFollower2.setNeutralMode(NeutralMode.Brake);
-
+        */
+        setNeutralMode(NeutralMode.Coast);
         portDriveMaster.configOpenloopRamp(0.1);
         starDriveMaster.configOpenloopRamp(0.1);
         
@@ -114,10 +116,7 @@ public class Robot extends TimedRobot {
 
         CameraServer.startAutomaticCapture();
 
-        LimeLight.getInstance().turnOn();
-
-        
-
+        LimeLight.getInstance().turnOn();     
 
     }
 
@@ -128,12 +127,13 @@ public class Robot extends TimedRobot {
       //  System.out.printf("Port 0: %b ---- Port 2: %b\n", testBreak1.get(), testBreak2.get());
     }
 
-
     @Override
     public void autonomousInit() {
+        setNeutralMode(NeutralMode.Brake);
         portDriveMaster.setSelectedSensorPosition(0.0);
         moveDone = false;
         linedUp = false;
+        inAuto = true;
         LimeLight.getInstance().turnOn();
 
         shooter.toggleSolenoid(shooterAngleSolenoid);
@@ -145,19 +145,13 @@ public class Robot extends TimedRobot {
     @Override
     public void autonomousPeriodic() {
 
-
-
-                            shooter.hoodUp(); //you would think this would be easy
+            shooter.hoodUp(); //you would think this would be easy     
         
-        
-
         double forward = 0.0, turn = 0.0;
         if (!moveDone) {
             System.out.println("cool im in not done");
             if (portDriveMaster.getSelectedSensorPosition() >= autotarget){
                 System.out.println("cool");
-
-
                 
                 moveDone = true;
             } else {
@@ -171,10 +165,12 @@ public class Robot extends TimedRobot {
                 turn = 0.4;
 
             } else {
+                
                 driveTrain.setWantedState(DriveState.GOAL_TRACKING);
                 ballProcessor.setProcessorState(BallProcessState.LOADED);
-                
-                ballProcessor.startShooting();
+                linedUp = true;
+                System.out.println("someting");
+                ballProcessor.startShooting();                
             }
 
         }
@@ -202,11 +198,11 @@ public class Robot extends TimedRobot {
 
     @Override
     public void teleopInit() {
+        setNeutralMode(NeutralMode.Brake);
         ballProcessor.stopShooting();
         driveTrain.setWantedState(DriveState.MANUAL);
-
+        inAuto = false;
         shooter.hoodSolenoid.set(DoubleSolenoid.Value.kForward);
-
 
         if (shooterAngleSolenoid.get() == DoubleSolenoid.Value.kOff){
             System.out.println("HEY\nHEY\nHEY\nHEY\nHEY\nHEY\nHEY\nHEY\nHEY\nHEY\nHEY\nHEY\nHEY\nHEY\nHEY\nHEY\nHEY\n");
@@ -283,5 +279,16 @@ public class Robot extends TimedRobot {
     @Override
     public void testPeriodic() {climber.climberDown();
         shooter.setWantedState(ShooterState.STOPPED);
+        setNeutralMode(NeutralMode.Coast);
+    }
+
+    public void setNeutralMode(NeutralMode neutralMode){
+        portDriveMaster.setNeutralMode(neutralMode);
+        portDriveFollower1.setNeutralMode(neutralMode);
+        portDriveFollower2.setNeutralMode(neutralMode);
+
+        starDriveMaster.setNeutralMode(neutralMode);
+        starDriveFollower1.setNeutralMode(neutralMode);
+        starDriveFollower2.setNeutralMode(neutralMode);
     }
 }

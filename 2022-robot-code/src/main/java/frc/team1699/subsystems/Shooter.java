@@ -137,14 +137,12 @@ public class Shooter {
 
                 deployHopperStopper();
                 setWantedState(ShooterState.RUNNING);
-                break;
+            break;
 
             case RUNNING:
             
-                break;
+            break;
             case SHOOT:
-
-
 
                 hoodTransition++; //this is set to 0 in the start shooting method in ballprocessor
                 
@@ -161,7 +159,7 @@ public class Shooter {
                 //wait until the thingy is up to speed, and then open the hopper    
                 if (shooterPortFX.getClosedLoopError() < +kErrThreshold &&  //if the speed is correct
                     shooterPortFX.getClosedLoopError() > -kErrThreshold &&
-                    hoodTransition >= 9) { //will always spin up for at least 15 ms
+                    hoodTransition >= 9) { //will always spin up for at least 9 ms
                     
                     if (atSpeedTicks >= 15) { //if its been at speed for a while
                         retractHopperStopper();
@@ -175,15 +173,15 @@ public class Shooter {
                     shooterAtSpeed = false;
                     atSpeedTicks = 0;
                 }
-                break;
+            break;
 
             case STOPPED:
 
-                break;
+            break;
 
             default:
                 currentState = ShooterState.UNINITIALIZED;
-                break;
+            break;
         }
 
         // System.out.println("top motor speed: " + (topMotorPort.getSelectedSensorVelocity()*600/2048) + "\nmain motor speed: " + shooterPortFX.getSelectedSensorVelocity()*600/4096);
@@ -223,9 +221,8 @@ public class Shooter {
                 currentState = ShooterState.RUNNING;
                 shooterAtSpeed = false;
                 atSpeedTicks = 0;
-                break;
-            case SHOOT:
-            
+            break;
+            case SHOOT:          
 
             if (LimeLight.getInstance().getTV()<1){
                 // if(hoodSolenoid.get() == DoubleSolenoid.Value.kForward){
@@ -239,7 +236,9 @@ public class Shooter {
             } else {
                 targetVelocityTop = calculateTopShooterSpeed(LimeLight.getInstance().getTY());
                 targetVelocityMain = calculateTopShooterSpeed(LimeLight.getInstance().getTY());
+                if () {
 
+                }
                 if (LimeLight.getInstance().getTY() >= -6.0) {
                     System.out.println("im sad");
                     hoodSolenoid.set(DoubleSolenoid.Value.kReverse); //this acts as a boolean for speed calculation
@@ -247,10 +246,9 @@ public class Shooter {
                     System.out.println("???");
                     hoodSolenoid.set(DoubleSolenoid.Value.kForward); //hood up
                 }
-
             }
                 currentState = ShooterState.SHOOT;
-                break;
+            break;
         }
     }
 
@@ -331,7 +329,9 @@ public class Shooter {
     //this takes the limelight y value to see how fast it shoots
     //we hope it works because if not we have to copy more 254 code
     public double calculateTopShooterSpeed(double llY){
-
+        if(LimeLight.getInstance().getTV() < 1.0 && hoodSolenoid.get() == DoubleSolenoid.Value.kReverse) {
+            return 0.0;
+        }
         return calculateMainShooterSpeed(llY) * kMain2TopMult;
 
         //2k low goal
@@ -352,8 +352,8 @@ public class Shooter {
 
             //linear??? who knows
             //return -41.5 * llY + 4303;
-        } else if(hoodSolenoid.get() == DoubleSolenoid.Value.kReverse) {
-            return -2.33 * (llY * llY) -3.82 * llY + 5182;
+        } else if(LimeLight.getInstance().getTV() < 1.0 && hoodSolenoid.get() == DoubleSolenoid.Value.kReverse) {
+            return kMainTestSpd;
 
             //return -29.5 * llY + 5118;
         } else {
