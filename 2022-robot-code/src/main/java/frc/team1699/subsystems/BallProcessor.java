@@ -97,20 +97,24 @@ public class BallProcessor {
         shootingTicks = 0;
         shooter.hoodTransition = 0;
         shooter.setWantedState(ShooterState.SHOOT);
+
+        shooter.isLowerShooting = false;
     }
 
     public void startLowerShooting(){
         currentState = BallProcessState.SHOOTING;
         shootingTicks = 0;
         shooter.setWantedState(ShooterState.SHOOT);
-        //default is 18k
-        shooter.setShooterGoal(0.0);
+
+        shooter.isLowerShooting = true;
     }
     
     public void stopShooting(){
         currentState = BallProcessState.LOADED;
         shootingTicks = 0;
         shooter.setWantedState(ShooterState.RUNNING);
+
+        shooter.isLowerShooting = false;
     }
 
 }

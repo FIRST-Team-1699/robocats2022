@@ -40,8 +40,21 @@ public class Shooter {
 
     private final double idle_UnitsPer100ms = 9000.0; //target velocity when its "running"
 
-
     private final double shooting_UnitsPer100ms = 20000.0; //the target velocity while shooting
+
+
+    /**
+        Shawty had them apple bottom jeans (jeans)
+        Boots with the fur (with the fur)
+        The whole club was lookin' at her
+        She hit the floor (she hit the floor)
+        Next thing you know
+        Shawty got low, low, low, low, low, low, low, low
+        @author Flo Rida
+    */
+    public boolean isLowerShooting = false;
+    private final double kLowGoalSpeed = 6942.0;
+    private final double kLowGoalMain2TopMulti = 3;
 
 
     public boolean shooterAtSpeed = false;
@@ -161,7 +174,7 @@ public class Shooter {
                 //wait until the thingy is up to speed, and then open the hopper    
                 if (shooterPortFX.getClosedLoopError() < +kErrThreshold &&  //if the speed is correct
                     shooterPortFX.getClosedLoopError() > -kErrThreshold &&
-                    hoodTransition >= 9) { //will always spin up for at least 9 ms
+                    hoodTransition >= 9) { //will always spin up for at least 9 cycles
                     
                     if (atSpeedTicks >= 15) { //if its been at speed for a while
                         retractHopperStopper();
@@ -226,7 +239,7 @@ public class Shooter {
             break;
             case SHOOT:          
 
-            if (LimeLight.getInstance().getTV()<1){
+            if (LimeLight.getInstance().getTV()<1){ //if no target is seen
                 // if(hoodSolenoid.get() == DoubleSolenoid.Value.kForward){
                 //     targetVelocityMain = 17000;
                 //     targetVelocityTop = 17000;
@@ -235,19 +248,23 @@ public class Shooter {
                 //     targetVelocityTop = shooting_UnitsPer100ms;
                 // }
 
-            } else {
+                if (isLowerShooting){
+                    hoodSolenoid.set(DoubleSolenoid.Value.kReverse);
+                }
+
+            } else { //if yes target is seen
                 targetVelocityTop = calculateTopShooterSpeed(LimeLight.getInstance().getTY());
                 targetVelocityMain = calculateTopShooterSpeed(LimeLight.getInstance().getTY());
                 if (Robot.inAuto) {
                     hoodSolenoid.set(DoubleSolenoid.Value.kForward); // hood up
                     System.out.println("hood up in auto (in shooter machine)");
                 } else{ 
-                    if (LimeLight.getInstance().getTY() >= -6.0) {
-                    System.out.println("im sad");
-                    hoodSolenoid.set(DoubleSolenoid.Value.kReverse); //this acts as a boolean for speed calculation
-                    } else {
-                    System.out.println("???");
-                    hoodSolenoid.set(DoubleSolenoid.Value.kForward); //hood up
+                    if (LimeLight.getInstance().getTY() >= -6.0 || isLowerShooting) { //close
+                    //    System.out.println("im sad");
+                        hoodSolenoid.set(DoubleSolenoid.Value.kReverse); //this acts as a boolean for speed calculation
+                    } else { //far
+                        //System.out.println("???");
+                        hoodSolenoid.set(DoubleSolenoid.Value.kForward); //hood up
                     }
                 }
             }
@@ -333,6 +350,11 @@ public class Shooter {
     //this takes the limelight y value to see how fast it shoots
     //we hope it works because if not we have to copy more 254 code
     public double calculateTopShooterSpeed(double llY){
+
+        if (isLowerShooting){ //close low goal shooting at a constant speed
+            return kLowGoalSpeed * kLowGoalMain2TopMulti;
+        }
+
         if(LimeLight.getInstance().getTV() < 1.0 && hoodSolenoid.get() == DoubleSolenoid.Value.kReverse) {
             return 0.0;
         }
@@ -350,6 +372,11 @@ public class Shooter {
         // switch the shooting mode based on the y value, the
         // same value used in this method.
         */
+
+        //lower hub shooting is a constant speed
+        if (isLowerShooting){
+            return kLowGoalSpeed;
+        }
 
         if(hoodSolenoid.get() == DoubleSolenoid.Value.kForward){
             return 0.694 * (llY * llY) - 17.5 * llY + 4489;
