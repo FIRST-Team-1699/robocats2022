@@ -4,6 +4,8 @@ import com.ctre.phoenix.motorcontrol.FeedbackDevice;
 import edu.wpi.first.wpilibj.DoubleSolenoid;
 import com.ctre.phoenix.motorcontrol.can.TalonSRX;
 import com.ctre.phoenix.motorcontrol.can.TalonFX;
+
+import frc.robot.Robot;
 import frc.team1699.utils.Gains;
 import frc.team1699.utils.sim.PhysicsSim;
 import com.ctre.phoenix.motorcontrol.TalonFXControlMode;
@@ -236,15 +238,17 @@ public class Shooter {
             } else {
                 targetVelocityTop = calculateTopShooterSpeed(LimeLight.getInstance().getTY());
                 targetVelocityMain = calculateTopShooterSpeed(LimeLight.getInstance().getTY());
-                if () {
-
-                }
-                if (LimeLight.getInstance().getTY() >= -6.0) {
+                if (Robot.inAuto) {
+                    hoodSolenoid.set(DoubleSolenoid.Value.kForward); // hood up
+                    System.out.println("hood up in auto (in shooter machine)");
+                } else{ 
+                    if (LimeLight.getInstance().getTY() >= -6.0) {
                     System.out.println("im sad");
                     hoodSolenoid.set(DoubleSolenoid.Value.kReverse); //this acts as a boolean for speed calculation
-                } else {
+                    } else {
                     System.out.println("???");
                     hoodSolenoid.set(DoubleSolenoid.Value.kForward); //hood up
+                    }
                 }
             }
                 currentState = ShooterState.SHOOT;
