@@ -3,8 +3,8 @@ package frc.team1699.subsystems;
 import frc.team1699.subsystems.IntakeHopper.IntakeStates;
 import frc.team1699.subsystems.Shooter.ShooterState;
 
-public class autoBallProcessor {
-    public enum autoBallProcessState {
+public class AutoBallProcessor {
+    public enum AutoBallProcessState {
         INIT, //started
         EMPTY, //no balls and no hopper spin TODO emtpy and collecting can be 1 in the same
         COLLECTING, //sucking in balls
@@ -15,19 +15,19 @@ public class autoBallProcessor {
     }
     private final Shooter shooter;
     private final IntakeHopper intakeHopp;
-    private autoBallProcessState currentState = autoBallProcessState.INIT;
+    private AutoBallProcessState currentState = AutoBallProcessState.INIT;
 
     private int shootingTicks = 0;
     private final int maxShootingTicks = 1024; //the maximum time that the hopper should try to push into the shooter
 
     private int retractingTicks = 0;
 
-    public autoBallProcessor(final Shooter shooter, final IntakeHopper intakeHopp) {
+    public AutoBallProcessor(final Shooter shooter, final IntakeHopper intakeHopp) {
         this.shooter = shooter;
         this.intakeHopp = intakeHopp;
     }
 
-    public void setProcessorState(final autoBallProcessState currentState) {
+    public void setProcessorState(final AutoBallProcessState currentState) {
         this.currentState = currentState;
     }
 
@@ -36,7 +36,7 @@ public class autoBallProcessor {
 
         switch(currentState){
             case INIT:
-                currentState = autoBallProcessState.LOADED;
+                currentState = AutoBallProcessState.LOADED;
             break;
 
             case EMPTY:
@@ -57,7 +57,7 @@ public class autoBallProcessor {
                 } else {
                     intakeHopp.setWantedState(IntakeStates.STORED);
                     retractingTicks = 0;
-                    currentState = autoBallProcessState.LOADED;
+                    currentState = AutoBallProcessState.LOADED;
                 }
             break;
 
@@ -94,14 +94,14 @@ public class autoBallProcessor {
         }
     }
     public void startShooting(){
-        currentState = autoBallProcessState.SHOOTING;
+        currentState = AutoBallProcessState.SHOOTING;
         shootingTicks = 0;
         shooter.hoodTransition = 0;
         shooter.setWantedState(ShooterState.SHOOT);
     }
 
     public void startLowerShooting(){
-        currentState = autoBallProcessState.SHOOTING;
+        currentState = AutoBallProcessState.SHOOTING;
         shootingTicks = 0;
         shooter.setWantedState(ShooterState.SHOOT);
         //default is 18k
@@ -109,7 +109,7 @@ public class autoBallProcessor {
     }
     
     public void stopShooting(){
-        currentState = autoBallProcessState.LOADED;
+        currentState = AutoBallProcessState.LOADED;
         shootingTicks = 0;
         shooter.setWantedState(ShooterState.RUNNING);
     }

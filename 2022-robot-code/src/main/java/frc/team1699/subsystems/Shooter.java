@@ -53,8 +53,8 @@ public class Shooter {
         @author Flo Rida
     */
     public boolean isLowerShooting = false;
-    private final double kLowGoalSpeed = 6942.0;
-    private final double kLowGoalMain2TopMulti = 3;
+    private final double kLowGoalSpeed = 5000.0;
+    private final double kLowGoalMain2TopMulti = 0;
 
 
     public boolean shooterAtSpeed = false;
@@ -158,14 +158,14 @@ public class Shooter {
             
             break;
             case SHOOT:
-
                 hoodTransition++; //this is set to 0 in the start shooting method in ballprocessor
-                
-                if(LimeLight.getInstance().getTV() > 0){
-                    if (LimeLight.getInstance().getTY() < 21.0){
+
+                if(LimeLight.getInstance().getTV() > 0 || isLowerShooting){
+                    if (LimeLight.getInstance().getTY() < 21.0 || isLowerShooting){
                         targetVelocityTop = calculateTopShooterSpeed(LimeLight.getInstance().getTY());
                         targetVelocityMain = calculateMainShooterSpeed(LimeLight.getInstance().getTY());
                     } else {
+                        System.out.println("else statement speed thing");
                         targetVelocityMain = 3676.0;
                         targetVelocityTop = 3676.0 * 3.0;
                     }
@@ -352,6 +352,7 @@ public class Shooter {
     public double calculateTopShooterSpeed(double llY){
 
         if (isLowerShooting){ //close low goal shooting at a constant speed
+            System.out.println("trying to shoot");
             return kLowGoalSpeed * kLowGoalMain2TopMulti;
         }
 

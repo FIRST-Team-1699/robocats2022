@@ -16,8 +16,8 @@ import edu.wpi.first.wpilibj.PneumaticsModuleType;
 import edu.wpi.first.wpilibj.TimedRobot;
 import frc.team1699.subsystems.BallProcessor;
 import frc.team1699.subsystems.BallProcessor.BallProcessState;
-import frc.team1699.subsystems.autoBallProcessor;
-import frc.team1699.subsystems.autoBallProcessor.autoBallProcessState;
+import frc.team1699.subsystems.AutoBallProcessor;
+import frc.team1699.subsystems.AutoBallProcessor.AutoBallProcessState;
 import frc.team1699.subsystems.DriveTrain;
 import frc.team1699.subsystems.DriveTrain.DriveState;
 import frc.team1699.subsystems.IntakeHopper.IntakeStates;
@@ -42,7 +42,7 @@ public class Robot extends TimedRobot {
     private IntakeHopper intakeHopp;
     private Shooter shooter;
     private BallProcessor ballProcessor;
-    private autoBallProcessor autoBallProcessor;
+    private AutoBallProcessor autoBallProcessor;
     private TalonSRX intakeHoppTalon, hoodTalonPort, hoodTalonStar, hopperTalon;
     private TalonFX shooterPortFx, shooterStarFx;
     private TalonFX portDriveMaster, portDriveFollower1, portDriveFollower2, starDriveMaster, starDriveFollower1, starDriveFollower2;
@@ -112,7 +112,7 @@ public class Robot extends TimedRobot {
         intakeHopp = new IntakeHopper(intakeSolenoid, intakeHoppTalon);
         shooter = new Shooter(hoodTalonPort, hoodTalonStar, shooterAngleSolenoid, hopperStopper, shooterStarFx, shooterPortFx);
         ballProcessor = new BallProcessor(shooter, intakeHopp);
-        autoBallProcessor = new autoBallProcessor(shooter, intakeHopp);
+        autoBallProcessor = new AutoBallProcessor(shooter, intakeHopp);
 
         climber = new Climber(climberSolenoidPort);
         
@@ -146,7 +146,7 @@ public class Robot extends TimedRobot {
             shooter.hoodSolenoid.set(DoubleSolenoid.Value.kForward); // hood up
             System.out.println("hood up in auto (init one)");
             driveTrain.setWantedState(DriveState.AUTONOMOUS);
-            autoBallProcessor.setProcessorState(autoBallProcessState.COLLECTING);
+            autoBallProcessor.setProcessorState(AutoBallProcessState.COLLECTING);
         }
     }
 
@@ -171,12 +171,12 @@ public class Robot extends TimedRobot {
             if (moveDone&&!linedUp) {
                 if (LimeLight.getInstance().getTV() < 1) {
                     forward = 0;
-                    turn = 0.4;
+                    turn = -0.4;
 
                 } else {
                     
                     driveTrain.setWantedState(DriveState.GOAL_TRACKING);
-                    autoBallProcessor.setProcessorState(autoBallProcessState.LOADED);
+                    autoBallProcessor.setProcessorState(AutoBallProcessState.LOADED);
                     linedUp = true;
                     System.out.println("someting");
                     autoBallProcessor.startShooting();                
