@@ -29,7 +29,7 @@ public class DriveTrain {
 
     //aiming constants
     //final double kSteer = 0.05; THE ORIGINAL VALUE
-    final double kSteer = 0.035;
+    final double kSteer = 0.038;
     final double kDrive = 0.06;
 
     double autoFwdDemand = 0.0;
