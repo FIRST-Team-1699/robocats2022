@@ -25,14 +25,15 @@ public class Shooter {
     public int hoodTransition = 0;
 
     //error variables
-    int kErrThreshold = 200; // IF THIS IS LESS THAN 100 YOU MIGHT POP BALLS
+    int kErrThreshold = 300; // IF THIS IS LESS THAN 100 YOU MIGHT POP BALLS
 
     public static final int kPIDLoopIDX = 0; //just leave this at 0 its for if u want more than 1 loop
     public static final int kTimeoutMs = 100;
 
-    public final Gains kVelocityPIDGains = new Gains(0.16, 0.0004, 0.4096, 0.03, 1.0, 300); // JAKOB SAYS: to make it more good, double d OR halve p
-    
+    public final Gains kVelocityPIDGains = new Gains(0.16, 0.0004, 0.4096, 0.03, 1.0, 300); // for top | JAKOB SAYS: to make it more good, double d OR halve p
     public final Gains kMainPIDGains = new Gains(0.16, 0.0004, 0.4096, 0.03, 1.0, 300); // for falcons
+
+    //public final Gains kMainPIDGains = new Gains(0.1, 0.0000, 10.0, 0.06, 1.0, 300); // for falcons
 
     private double targetVelocityTop = 0.0; //it will tell the motor to spin this fast, ik its so cool
 

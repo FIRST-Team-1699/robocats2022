@@ -18,11 +18,11 @@ public class AutoBallProcessor {
     private AutoBallProcessState currentState = AutoBallProcessState.INIT;
 
     private int shootingTicks = 0;
-    private final int maxShootingTicks = 1024; //the maximum time that the hopper should try to push into the shooter
+    private final int maxShootingTicks = 50; //the maximum time that the hopper should try to push into the shooter
 
     private int retractingTicks = 0;
 
-    public AutoBallProcessor(final Shooter shooter, final IntakeHopper intakeHopp) {
+    public AutoBallProcessor (final Shooter shooter, final IntakeHopper intakeHopp) {
         this.shooter = shooter;
         this.intakeHopp = intakeHopp;
     }
