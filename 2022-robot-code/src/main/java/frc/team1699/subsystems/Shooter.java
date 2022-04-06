@@ -44,6 +44,10 @@ public class Shooter {
     private final double shooting_UnitsPer100ms = 20000.0; //the target velocity while shooting
 
 
+    public boolean isCloseUpperShooting = false;
+    private final double kCloseUpperSpeed = 6000;
+    private final double kCloseUpperMain2TopMulti = 3;
+
     /**
         Shawty had them apple bottom jeans (jeans)
         Boots with the fur (with the fur)
@@ -241,16 +245,11 @@ public class Shooter {
             case SHOOT:          
 
             if (LimeLight.getInstance().getTV()<1){ //if no target is seen
-                // if(hoodSolenoid.get() == DoubleSolenoid.Value.kForward){
-                //     targetVelocityMain = 17000;
-                //     targetVelocityTop = 17000;
-                // }else{
-                //     targetVelocityMain = shooting_UnitsPer100ms;
-                //     targetVelocityTop = shooting_UnitsPer100ms;
-                // }
 
                 if (isLowerShooting){
                     hoodSolenoid.set(DoubleSolenoid.Value.kReverse);
+                } else { //this is if you are close and want to upper shoot
+                    isCloseUpperShooting = true;
                 }
 
             } else { //if yes target is seen
@@ -355,11 +354,14 @@ public class Shooter {
         if (isLowerShooting){ //close low goal shooting at a constant speed
             System.out.println("trying to shoot");
             return kLowGoalSpeed * kLowGoalMain2TopMulti;
+        } else if (isCloseUpperShooting){
+            return kCloseUpperSpeed * kCloseUpperMain2TopMulti;
         }
 
         if(LimeLight.getInstance().getTV() < 1.0 && hoodSolenoid.get() == DoubleSolenoid.Value.kReverse) {
             return 0.0;
         }
+
         return calculateMainShooterSpeed(llY) * kMain2TopMult;
 
         //2k low goal
@@ -378,6 +380,8 @@ public class Shooter {
         //lower hub shooting is a constant speed
         if (isLowerShooting){
             return kLowGoalSpeed;
+        } else if (isCloseUpperShooting){
+            return kCloseUpperSpeed;
         }
 
         if(hoodSolenoid.get() == DoubleSolenoid.Value.kForward){
@@ -385,10 +389,6 @@ public class Shooter {
 
             //linear??? who knows
             //return -41.5 * llY + 4303;
-        } else if(LimeLight.getInstance().getTV() < 1.0 && hoodSolenoid.get() == DoubleSolenoid.Value.kReverse) {
-            return kMainTestSpd;
-
-            //return -29.5 * llY + 5118;
         } else {
             return -2.33 * (llY * llY) -3.82 * llY + 5182;
         }

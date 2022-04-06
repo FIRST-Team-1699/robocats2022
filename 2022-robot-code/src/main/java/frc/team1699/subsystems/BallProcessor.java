@@ -107,6 +107,7 @@ public class BallProcessor {
         shooter.setWantedState(ShooterState.SHOOT);
 
         shooter.isLowerShooting = true;
+        shooter.isCloseUpperShooting = false;
     }
     
     public void stopShooting(){
@@ -115,6 +116,7 @@ public class BallProcessor {
         shooter.setWantedState(ShooterState.RUNNING);
 
         shooter.isLowerShooting = false;
+        shooter.isCloseUpperShooting = false;
     }
 
 }
