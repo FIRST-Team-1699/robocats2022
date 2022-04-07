@@ -55,6 +55,11 @@ public class Robot extends TimedRobot {
     private boolean moveDone;
     private boolean linedUp;
     public static boolean inAuto;
+
+
+
+
+    //DISABLE AUTO
     private boolean do2BallAuto = true;
 
     @Override
@@ -288,7 +293,10 @@ public class Robot extends TimedRobot {
     @Override
     public void testPeriodic() {climber.climberDown();
         shooter.setWantedState(ShooterState.STOPPED);
+        ballProcessor.stopShooting();
         setNeutralMode(NeutralMode.Coast);
+        shooter.update();
+        ballProcessor.update();
     }
 
     public void setNeutralMode(NeutralMode neutralMode){

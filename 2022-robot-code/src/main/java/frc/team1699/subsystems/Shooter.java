@@ -250,6 +250,8 @@ public class Shooter {
                     hoodSolenoid.set(DoubleSolenoid.Value.kReverse);
                 } else { //this is if you are close and want to upper shoot
                     isCloseUpperShooting = true;
+                    hoodSolenoid.set(DoubleSolenoid.Value.kReverse);
+                   // System.out.println("close you pp");
                 }
 
             } else { //if yes target is seen
