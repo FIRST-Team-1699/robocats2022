@@ -11,7 +11,8 @@ public class BallProcessor {
         RETRACTING, //spin hopper for a bit then turn it off and bring up intake
         LOADED, //1 or 2 balls and hopper is off
         SHOOTING,   //retracts the hopper stopper and pushes balls to shoot them
-        PURGING //i frew up :(
+        PURGING, //i frew up :(
+        IDLE
     }
     private final Shooter shooter;
     private final IntakeHopper intakeHopp;
@@ -90,6 +91,12 @@ public class BallProcessor {
                 intakeHopp.setWantedState(IntakeStates.BACKDRIVE);
                 
             break;
+
+            case IDLE:
+                intakeHopp.setWantedState(IntakeStates.STORED);
+                idleShooting();
+
+            break;
         }
     }
     public void startShooting(){
@@ -118,5 +125,10 @@ public class BallProcessor {
         shooter.isLowerShooting = false;
         shooter.isCloseUpperShooting = false;
     }
+
+    public void idleShooting(){
+        shooter.setWantedState(ShooterState.STOPPED);
+    }
+
 
 }

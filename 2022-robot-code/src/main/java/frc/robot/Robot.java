@@ -293,7 +293,7 @@ public class Robot extends TimedRobot {
     @Override
     public void testPeriodic() {climber.climberDown();
         shooter.setWantedState(ShooterState.STOPPED);
-        ballProcessor.stopShooting();
+        ballProcessor.idleShooting();
         setNeutralMode(NeutralMode.Coast);
         shooter.update();
         ballProcessor.update();
