@@ -3,7 +3,7 @@ package frc.team1699.subsystems;
 import frc.team1699.subsystems.IntakeHopper.IntakeStates;
 import frc.team1699.subsystems.Shooter.ShooterState;
 
-public class AutoBallProcessor {
+public class autoBallProcessor {
     public enum AutoBallProcessState {
         INIT, //started
         EMPTY, //no balls and no hopper spin TODO emtpy and collecting can be 1 in the same
@@ -22,7 +22,7 @@ public class AutoBallProcessor {
 
     private int retractingTicks = 0;
 
-    public AutoBallProcessor (final Shooter shooter, final IntakeHopper intakeHopp) {
+    public autoBallProcessor (final Shooter shooter, final IntakeHopper intakeHopp) {
         this.shooter = shooter;
         this.intakeHopp = intakeHopp;
     }
