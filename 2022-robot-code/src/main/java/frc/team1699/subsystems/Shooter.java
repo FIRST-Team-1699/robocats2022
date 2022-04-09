@@ -387,7 +387,10 @@ public class Shooter {
         }
 
         if(hoodSolenoid.get() == DoubleSolenoid.Value.kForward){
-            return 0.694 * (llY * llY) - 17.5 * llY + 4489;
+            //4540 + -6.45x + 1.19x^2
+            return 1.19 * (llY * llY) - 6.45 * llY + 4540;
+
+      //      return 0.694 * (llY * llY) - 17.5 * llY + 4489; bacon (bad)
 
             //linear??? who knows
             //return -41.5 * llY + 4303;
