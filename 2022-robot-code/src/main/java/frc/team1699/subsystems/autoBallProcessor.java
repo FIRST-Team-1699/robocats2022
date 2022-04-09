@@ -3,8 +3,8 @@ package frc.team1699.subsystems;
 import frc.team1699.subsystems.IntakeHopper.IntakeStates;
 import frc.team1699.subsystems.Shooter.ShooterState;
 
-public class BallProcessor {
-    public enum BallProcessState {
+public class AutoBallProcessor {
+    public enum AutoBallProcessState {
         INIT, //started
         EMPTY, //no balls and no hopper spin TODO emtpy and collecting can be 1 in the same
         COLLECTING, //sucking in balls
@@ -15,19 +15,19 @@ public class BallProcessor {
     }
     private final Shooter shooter;
     private final IntakeHopper intakeHopp;
-    private BallProcessState currentState = BallProcessState.INIT;
+    private AutoBallProcessState currentState = AutoBallProcessState.INIT;
 
     private int shootingTicks = 0;
-    private final int maxShootingTicks = 1024; //the maximum time that the hopper should try to push into the shooter
+    private final int maxShootingTicks = 50; //the maximum time that the hopper should try to push into the shooter
 
     private int retractingTicks = 0;
 
-    public BallProcessor(final Shooter shooter, final IntakeHopper intakeHopp) {
+    public AutoBallProcessor (final Shooter shooter, final IntakeHopper intakeHopp) {
         this.shooter = shooter;
         this.intakeHopp = intakeHopp;
     }
 
-    public void setProcessorState(final BallProcessState currentState) {
+    public void setProcessorState(final AutoBallProcessState currentState) {
         this.currentState = currentState;
     }
 
@@ -36,7 +36,7 @@ public class BallProcessor {
 
         switch(currentState){
             case INIT:
-                currentState = BallProcessState.LOADED;
+                currentState = AutoBallProcessState.LOADED;
             break;
 
             case EMPTY:
@@ -45,6 +45,7 @@ public class BallProcessor {
             break;
 
             case COLLECTING:
+                System.out.println("collecting");
                 intakeHopp.setWantedState(IntakeStates.DEPLOYED);
             break;
 
@@ -56,7 +57,7 @@ public class BallProcessor {
                 } else {
                     intakeHopp.setWantedState(IntakeStates.STORED);
                     retractingTicks = 0;
-                    currentState = BallProcessState.LOADED;
+                    currentState = AutoBallProcessState.LOADED;
                 }
             break;
 
@@ -93,30 +94,24 @@ public class BallProcessor {
         }
     }
     public void startShooting(){
-        currentState = BallProcessState.SHOOTING;
+        currentState = AutoBallProcessState.SHOOTING;
         shootingTicks = 0;
         shooter.hoodTransition = 0;
         shooter.setWantedState(ShooterState.SHOOT);
-
-        shooter.isLowerShooting = false;
     }
 
     public void startLowerShooting(){
-        currentState = BallProcessState.SHOOTING;
+        currentState = AutoBallProcessState.SHOOTING;
         shootingTicks = 0;
         shooter.setWantedState(ShooterState.SHOOT);
-
-        shooter.isLowerShooting = true;
-        shooter.isCloseUpperShooting = false;
+        //default is 18k
+        shooter.setShooterGoal(0.0);
     }
     
     public void stopShooting(){
-        currentState = BallProcessState.LOADED;
+        currentState = AutoBallProcessState.LOADED;
         shootingTicks = 0;
         shooter.setWantedState(ShooterState.RUNNING);
-
-        shooter.isLowerShooting = false;
-        shooter.isCloseUpperShooting = false;
     }
 
 }

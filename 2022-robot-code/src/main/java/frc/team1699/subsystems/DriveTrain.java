@@ -6,7 +6,7 @@ import edu.wpi.first.wpilibj.Joystick;
 import frc.team1699.utils.sensors.LimeLight;
 import frc.team1699.utils.Utils;
 import com.ctre.phoenix.motorcontrol.can.TalonFX;
-import com.ctre.phoenix.music.Orchestra;//NO I WILL NOT DELETE THIS IMPORT, IT IS IMPORTANT TO ME
+import com.ctre.phoenix.music.Orchestra; //NO I WILL NOT DELETE THIS IMPORT, IT IS IMPORTANT TO ME
 import com.ctre.phoenix.motorcontrol.FollowerType;
 import com.ctre.phoenix.motorcontrol.TalonFXControlMode;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -28,7 +28,8 @@ public class DriveTrain {
     public boolean aligned = false;
 
     //aiming constants
-    final double kSteer = 0.05;
+    //final double kSteer = 0.05; THE ORIGINAL VALUE
+    final double kSteer = 0.038;
     final double kDrive = 0.06;
 
     double autoFwdDemand = 0.0;

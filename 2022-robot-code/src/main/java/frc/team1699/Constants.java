@@ -19,9 +19,13 @@ public class Constants {
     //Intake + Hopper Motor Port
     public static final int kIntakeHoppPort = 15;
 
-    //Shooter Motor Ports
-    public static final int kPortShooterPort = 16;
-    public static final int kStarShooterPort = 12;
+    //the new wheel thingy motors that are actually the old wheel thingy motors.
+    public static final int kPortShooterPort = 37;
+    public static final int kStarShooterPort = 38;
+
+    //main shooter motobs
+    public static final int kPortBackHoodMotor = 16;
+    public static final int kStarBackHoodMotor = 12;
 
     //Solenoid Ports
     
@@ -37,8 +41,8 @@ public class Constants {
 
     //Shooter Angle Solenoid
     public static final int kShooterAngleSolenoidModulePort = 1;
-    public static final int kShooterAngleSolenoidForwardPort = 7;
-    public static final int kShooterAngleSolenoidReversePort = 6;
+    public static final int kShooterAngleSolenoidForwardPort = 6;
+    public static final int kShooterAngleSolenoidReversePort = 7;
 
     //Climber Solenoid - 1 solenoid 2 pistons
     public static final int kPortClimberModulePort = 1;
