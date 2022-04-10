@@ -29,7 +29,7 @@ public class DriveTrain {
 
     //aiming constants
     //final double kSteer = 0.05; THE ORIGINAL VALUE
-    final double kSteer = 0.038;
+    final double kSteer = 0.040;
     final double kDrive = 0.06;
 
     double autoFwdDemand = 0.0;
@@ -114,7 +114,7 @@ public class DriveTrain {
                     runArcadeDrive(LimeLight.getInstance().getTX()*kSteer, -(LimeLight.getInstance().getTY()-20)*kDrive*0);
                 } else {
                     runArcadeDrive(0, 0);
-                    System.out.println("no target");
+              //      System.out.println("no target");
                 }
 
 

@@ -45,7 +45,7 @@ public class AutoBallProcessor {
             break;
 
             case COLLECTING:
-                System.out.println("collecting");
+              //  System.out.println("collecting");
                 intakeHopp.setWantedState(IntakeStates.DEPLOYED);
             break;
 
@@ -77,6 +77,7 @@ public class AutoBallProcessor {
                 if (shooter.shooterAtSpeed) { //this only occurs if the shooter is at speed for some time
 
                     //starts feeding
+                  //  System.out.println("Feeding");
                     intakeHopp.setWantedState(IntakeStates.RUNHOP); //push balls into the shooter
                     shootingTicks ++;
 
