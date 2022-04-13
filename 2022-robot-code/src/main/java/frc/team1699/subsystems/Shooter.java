@@ -25,7 +25,7 @@ public class Shooter {
 
     private double kMain2TopMult = 3; //3 is good for 4 feet
 
-    private double kMainTestSpd = 8000;
+    private double kMainTestSpd = 5700;
 
     public int hoodTransition = 0;
 
@@ -44,13 +44,13 @@ public class Shooter {
 
     private double targetVelocityMain = 0.0;
 
-    private final double idle_UnitsPer100ms = 9000.0; //target velocity when its "running"
+    private final double idle_UnitsPer100ms = 5000.0; //target velocity when its "running"
 
     private final double shooting_UnitsPer100ms = 20000.0; //the target velocity while shooting
 
 
     public boolean isCloseUpperShooting = false;
-    private final double kCloseUpperSpeed = 3000;
+    private final double kCloseUpperSpeed = 10000;
     private final double kCloseUpperMain2TopMulti = 0;
 
     /**
@@ -180,14 +180,16 @@ public class Shooter {
                 if (Robot.inAuto) {
                     targetVelocityMain = calculateMainShooterSpeed(LimeLight.getInstance().getTY());
                 }
-                if(LimeLight.getInstance().getTV() > 0 || isLowerShooting){
-                    if (LimeLight.getInstance().getTY() < 21.0 || isLowerShooting){
+                if(LimeLight.getInstance().getTV() > 0 || isLowerShooting || isCloseUpperShooting){
+                    if (LimeLight.getInstance().getTY() < 21.0 || isLowerShooting || isCloseUpperShooting){
                         targetVelocityTop = calculateTopShooterSpeed(LimeLight.getInstance().getTY());
                         targetVelocityMain = calculateMainShooterSpeed(LimeLight.getInstance().getTY());
                     } else {
                     //    System.out.println("else statement speed thing");
-                        targetVelocityMain = 3676.0;
-                        targetVelocityTop = 3676.0 * 3.0;
+                        // targetVelocityMain = 3676.0;
+                        // targetVelocityTop = 3676.0 * 3.0;
+                        targetVelocityTop = calculateTopShooterSpeed(LimeLight.getInstance().getTY());
+                        targetVelocityMain = calculateMainShooterSpeed(LimeLight.getInstance().getTY());
                     }
                 }
 
@@ -243,14 +245,14 @@ public class Shooter {
                 break;
             case RUNNING:
 
-                // if(LimeLight.getInstance().getTV() > 0){
+                if(LimeLight.getInstance().getTV() > 0){
                     targetVelocityTop = calculateTopShooterSpeed(LimeLight.getInstance().getTY());
                     targetVelocityMain = calculateMainShooterSpeed(LimeLight.getInstance().getTY());
-                // }
-                // else{
-                //     targetVelocityTop = idle_UnitsPer100ms;
-                //     targetVelocityMain = idle_UnitsPer100ms;
-                // }
+                }
+                else {
+                    targetVelocityTop = idle_UnitsPer100ms;
+                    targetVelocityMain = idle_UnitsPer100ms;
+                }
                 deployHopperStopper();
                 currentState = ShooterState.RUNNING;
                 shooterAtSpeed = false;
@@ -278,9 +280,9 @@ public class Shooter {
                 targetVelocityMain = calculateTopShooterSpeed(LimeLight.getInstance().getTY());
                 if (Robot.inAuto) {
                     hoodSolenoid.set(DoubleSolenoid.Value.kForward); // hood up
-                    System.out.println("hood up in auto (in shooter machine)");
+                    System.out.println(targetVelocityMain);
                 } else{ 
-                    if (LimeLight.getInstance().getTY() >= -6.0 || isLowerShooting) { //close
+                    if (LimeLight.getInstance().getTY() >= -8.0 || isLowerShooting) { //close
                     //    System.out.println("im sad");
                         hoodSolenoid.set(DoubleSolenoid.Value.kReverse); //this acts as a boolean for speed calculation
                     } else { //far
@@ -372,6 +374,8 @@ public class Shooter {
     //we hope it works because if not we have to copy more 254 code
     public double calculateTopShooterSpeed(double llY){
 
+     //   return kMainTestSpd * kMain2TopMult;
+
         if (isLowerShooting){ //close low goal shooting at a constant speed
           //  System.out.println("trying to shoot");
             return kLowGoalSpeed * kLowGoalMain2TopMulti;
@@ -386,11 +390,14 @@ public class Shooter {
         return calculateMainShooterSpeed(llY) * kMain2TopMult;
 
         //2k low goal
-       // return ((llY * -163) + 10000);
+     //  return ((llY * -163) + 10000);
 
     }
     //llY means limelight y
     public double calculateMainShooterSpeed(double llY){
+
+        //TEST HAHAHAHAHAHA I AM IN PAIN
+       // return kMainTestSpd;
 
         /* the hood position will be determined by the limelight
         // value somehwere else in the code. this will effectivley
@@ -409,8 +416,9 @@ public class Shooter {
 
       //      System.out.println("fwdshoot");
 
+            return (llY*llY) * 3.31 + (47.8*llY) + 4947;
             //4540 + -6.45x + 1.19x^2
-            return 1.19 * (llY * llY) - 6.45 * llY + 4540;
+           // return 1.19 * (llY * llY) - 6.45 * llY + 4540;
 
       //      return 0.694 * (llY * llY) - 17.5 * llY + 4489; bacon (bad)
 
@@ -420,11 +428,11 @@ public class Shooter {
 
        //     System.out.println("backshoot");
 
-            return -2.33 * (llY * llY) -3.82 * llY + 5182;
+            return 3.36 * (llY * llY) -105 * llY + 5392;
         }
         
 
-        //5k on main 0 on upper is low goal PERFECTION
-     //   return (llY * -163) + 5000;
+       // 5k on main 0 on upper is low goal PERFECTION
+      // return (llY * -163) + 5000;
     }
 }
