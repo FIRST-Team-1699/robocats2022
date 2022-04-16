@@ -143,6 +143,7 @@ public class Robot extends TimedRobot {
     @Override
     public void autonomousInit() {
         if (do2BallAuto){
+            
             setNeutralMode(NeutralMode.Brake);
             portDriveMaster.setSelectedSensorPosition(0.0);
             moveDone = false;
@@ -151,6 +152,9 @@ public class Robot extends TimedRobot {
             LimeLight.getInstance().turnOff();
 
             // shooter.toggleSolenoid(shooterAngleSolenoid);
+
+            shooter.deployHopperStopper();
+
             shooter.hoodSolenoid.set(DoubleSolenoid.Value.kForward); // hood up
             System.out.println("hood up in auto (init one)");
             driveTrain.setWantedState(DriveState.AUTONOMOUS);
@@ -237,6 +241,7 @@ public class Robot extends TimedRobot {
     @Override
     public void teleopPeriodic() {
 
+        LimeLight.getInstance().turnOn();
         //AUTO AIM
         if (driveJoystick.getRawButton(2)){
             LimeLight.getInstance().turnOn();
@@ -295,6 +300,11 @@ public class Robot extends TimedRobot {
         }
         if (driveJoystick.getRawButtonReleased(3)) {
             ballProcessor.setProcessorState(BallProcessState.LOADED);
+        }
+
+        //makes sure the hopper that can't be stopper'd gets stopper'd
+        if (!opJoystick.getRawButton(4) && !opJoystick.getRawButton(3) && !opJoystick.getRawButton(6)){
+            hopperStopper.set(DoubleSolenoid.Value.kForward);
         }
 
         ballProcessor.update();

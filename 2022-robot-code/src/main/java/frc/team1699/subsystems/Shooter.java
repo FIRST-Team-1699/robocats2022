@@ -30,7 +30,7 @@ public class Shooter {
     public int hoodTransition = 0;
 
     //error variables
-    int kErrThreshold = 300; // IF THIS IS LESS THAN 100 YOU MIGHT POP BALLS
+    int kErrThreshold = 200  ; // IF THIS IS LESS THAN 100 YOU MIGHT POP BALLS
 
     public static final int kPIDLoopIDX = 0; //just leave this at 0 its for if u want more than 1 loop
     public static final int kTimeoutMs = 100;
@@ -50,7 +50,7 @@ public class Shooter {
 
 
     public boolean isCloseUpperShooting = false;
-    private final double kCloseUpperSpeed = 10000;
+    private final double kCloseUpperSpeed = 8000;
     private final double kCloseUpperMain2TopMulti = 0;
 
     /**
@@ -263,6 +263,7 @@ public class Shooter {
             if (opJoystick.getRawButton(6)){
                 isCloseUpperShooting = true;
                 hoodSolenoid.set(DoubleSolenoid.Value.kReverse);
+                
             } else {isCloseUpperShooting = false;}
 
             if (LimeLight.getInstance().getTV()<1){ //if no target is seen
@@ -428,7 +429,7 @@ public class Shooter {
 
        //     System.out.println("backshoot");
 
-            return 3.36 * (llY * llY) -105 * llY + 5392;
+            return 3.36 * (llY * llY) - (105 * llY) + 5392;
         }
         
 
