@@ -1,6 +1,13 @@
 package frc.team1699;
 
 public class Constants {
+
+    //cool things
+    /**i make the robo slo*/
+    public static final double coefficientOfSpeedThatGetsMultipliedToMakeTheRobotSlower = 0.30;
+
+    public static final boolean theRobotIsJustADrivetrainAndNothingMore = true;
+
     //joysticks
     public static final int kDriveJoystickPort = 0;
     public static final int kOperatorJoystickPort = 1;

@@ -307,10 +307,15 @@ public class Robot extends TimedRobot {
             hopperStopper.set(DoubleSolenoid.Value.kForward);
         }
 
+        if (Constants.theRobotIsJustADrivetrainAndNothingMore){
+            ballProcessor.setProcessorState(BallProcessState.IDLE);
+        }
+        intakeHopp.update();
         ballProcessor.update();
         shooter.update();
+        
         driveTrain.update();
-        intakeHopp.update();
+        
       }
 
     @Override

@@ -11,6 +11,7 @@ import com.ctre.phoenix.motorcontrol.FollowerType;
 import com.ctre.phoenix.motorcontrol.TalonFXControlMode;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import com.ctre.phoenix.motorcontrol.TalonFXInvertType;
+import frc.team1699.Constants;
 
 public class DriveTrain {
 
@@ -19,6 +20,20 @@ public class DriveTrain {
     private final Joystick joystick;
     private DriveState systemState, wantedState;
     private double portCommand, starCommand;
+
+
+
+
+
+
+
+    
+
+
+
+
+
+
 
     private final int kRampTotal = 25; // in ticks, 50 ticks in a second, do the math u lazy dummy
     private int rampTicks = 0;
@@ -160,8 +175,8 @@ public class DriveTrain {
 
 
        // System.out.println("port: " + portOutput + " star: " + starOutput);
-        portDrive1.set(TalonFXControlMode.PercentOutput, portOutput);
-        starDrive1.set(TalonFXControlMode.PercentOutput, starOutput);
+        portDrive1.set(TalonFXControlMode.PercentOutput, portOutput * Constants.coefficientOfSpeedThatGetsMultipliedToMakeTheRobotSlower);
+        starDrive1.set(TalonFXControlMode.PercentOutput, starOutput * Constants.coefficientOfSpeedThatGetsMultipliedToMakeTheRobotSlower);
     }
 
 
