@@ -5,7 +5,10 @@ import edu.wpi.first.wpilibj.DoubleSolenoid;
 import com.ctre.phoenix.motorcontrol.can.TalonSRX;
 import com.ctre.phoenix.motorcontrol.can.TalonFX;
 
+import edu.wpi.first.wpilibj.Joystick;
+
 import frc.robot.Robot;
+import frc.team1699.Constants;
 import frc.team1699.utils.Gains;
 import frc.team1699.utils.sim.PhysicsSim;
 import com.ctre.phoenix.motorcontrol.TalonFXControlMode;
@@ -18,14 +21,16 @@ import frc.team1699.utils.sensors.LimeLight;
 //public class Shooter implements Subsystem{ 
 public class Shooter {
 
+    private Joystick opJoystick;
+
     private double kMain2TopMult = 3; //3 is good for 4 feet
 
-    private double kMainTestSpd = 8000;
+    private double kMainTestSpd = 5700;
 
     public int hoodTransition = 0;
 
     //error variables
-    int kErrThreshold = 300; // IF THIS IS LESS THAN 100 YOU MIGHT POP BALLS
+    int kErrThreshold = 200  ; // IF THIS IS LESS THAN 100 YOU MIGHT POP BALLS
 
     public static final int kPIDLoopIDX = 0; //just leave this at 0 its for if u want more than 1 loop
     public static final int kTimeoutMs = 100;
@@ -39,14 +44,14 @@ public class Shooter {
 
     private double targetVelocityMain = 0.0;
 
-    private final double idle_UnitsPer100ms = 9000.0; //target velocity when its "running"
+    private final double idle_UnitsPer100ms = 5000.0; //target velocity when its "running"
 
     private final double shooting_UnitsPer100ms = 20000.0; //the target velocity while shooting
 
 
     public boolean isCloseUpperShooting = false;
-    private final double kCloseUpperSpeed = 6000;
-    private final double kCloseUpperMain2TopMulti = 3;
+    private final double kCloseUpperSpeed = 8000;
+    private final double kCloseUpperMain2TopMulti = 0;
 
     /**
         Shawty had them apple bottom jeans (jeans)
@@ -84,6 +89,8 @@ public class Shooter {
     public Shooter(final TalonSRX topMotorPort, final TalonSRX topMotorStar, final DoubleSolenoid hoodSolenoid, final DoubleSolenoid hoppaStoppa, final TalonFX shooterStarFX, final TalonFX shooterPortFX) {
         this.topMotorPort = topMotorPort;
         this.topMotorStar = topMotorStar;
+
+        opJoystick = new Joystick(Constants.kOperatorJoystickPort);
 
         this.shooterPortFX = shooterPortFX;
         this.shooterStarFX = shooterStarFX;
@@ -163,25 +170,34 @@ public class Shooter {
             
             break;
             case SHOOT:
-                hoodTransition++; //this is set to 0 in the start shooting method in ballprocessor
 
-                if(LimeLight.getInstance().getTV() > 0 || isLowerShooting){
-                    if (LimeLight.getInstance().getTY() < 21.0 || isLowerShooting){
+            if (opJoystick.getRawButton(6)){
+                isCloseUpperShooting = true;
+                hoodSolenoid.set(DoubleSolenoid.Value.kReverse);
+            } else {isCloseUpperShooting = false;}
+
+                hoodTransition++; //this is set to 0 in the start shooting method in ballprocessor
+                if (Robot.inAuto) {
+                    targetVelocityMain = calculateMainShooterSpeed(LimeLight.getInstance().getTY());
+                }
+                if(LimeLight.getInstance().getTV() > 0 || isLowerShooting || isCloseUpperShooting){
+                    if (LimeLight.getInstance().getTY() < 21.0 || isLowerShooting || isCloseUpperShooting){
                         targetVelocityTop = calculateTopShooterSpeed(LimeLight.getInstance().getTY());
                         targetVelocityMain = calculateMainShooterSpeed(LimeLight.getInstance().getTY());
                     } else {
-                        System.out.println("else statement speed thing");
-                        targetVelocityMain = 3676.0;
-                        targetVelocityTop = 3676.0 * 3.0;
+                    //    System.out.println("else statement speed thing");
+                        // targetVelocityMain = 3676.0;
+                        // targetVelocityTop = 3676.0 * 3.0;
+                        targetVelocityTop = calculateTopShooterSpeed(LimeLight.getInstance().getTY());
+                        targetVelocityMain = calculateMainShooterSpeed(LimeLight.getInstance().getTY());
                     }
                 }
 
                 //wait until the thingy is up to speed, and then open the hopper    
                 if (shooterPortFX.getClosedLoopError() < +kErrThreshold &&  //if the speed is correct
-                    shooterPortFX.getClosedLoopError() > -kErrThreshold &&
-                    hoodTransition >= 9) { //will always spin up for at least 9 cycles
+                    shooterPortFX.getClosedLoopError() > -kErrThreshold) { //will always spin up for at least 9 cycles
                     
-                    if (atSpeedTicks >= 15) { //if its been at speed for a while
+                    if ((!Robot.inAuto && atSpeedTicks >= 15) || (atSpeedTicks >= 50)) { //if its been at speed for a while (longer in auto because of taking time to aim + me being terrible at programming actual solutions.)
                         retractHopperStopper();
                         shooterAtSpeed = true; //sends a signal to start feeding into the shooter
                         //this will make the motors slow down, causing them to go back to the speeding up phase
@@ -229,20 +245,26 @@ public class Shooter {
                 break;
             case RUNNING:
 
-                // if(LimeLight.getInstance().getTV() > 0){
+                if(LimeLight.getInstance().getTV() > 0){
                     targetVelocityTop = calculateTopShooterSpeed(LimeLight.getInstance().getTY());
                     targetVelocityMain = calculateMainShooterSpeed(LimeLight.getInstance().getTY());
-                // }
-                // else{
-                //     targetVelocityTop = idle_UnitsPer100ms;
-                //     targetVelocityMain = idle_UnitsPer100ms;
-                // }
+                }
+                else {
+                    targetVelocityTop = idle_UnitsPer100ms;
+                    targetVelocityMain = idle_UnitsPer100ms;
+                }
                 deployHopperStopper();
                 currentState = ShooterState.RUNNING;
                 shooterAtSpeed = false;
                 atSpeedTicks = 0;
             break;
-            case SHOOT:          
+            case SHOOT: 
+            
+            if (opJoystick.getRawButton(6)){
+                isCloseUpperShooting = true;
+                hoodSolenoid.set(DoubleSolenoid.Value.kReverse);
+                
+            } else {isCloseUpperShooting = false;}
 
             if (LimeLight.getInstance().getTV()<1){ //if no target is seen
 
@@ -259,9 +281,9 @@ public class Shooter {
                 targetVelocityMain = calculateTopShooterSpeed(LimeLight.getInstance().getTY());
                 if (Robot.inAuto) {
                     hoodSolenoid.set(DoubleSolenoid.Value.kForward); // hood up
-                    System.out.println("hood up in auto (in shooter machine)");
+                    System.out.println(targetVelocityMain);
                 } else{ 
-                    if (LimeLight.getInstance().getTY() >= -6.0 || isLowerShooting) { //close
+                    if (LimeLight.getInstance().getTY() >= -8.0 || isLowerShooting) { //close
                     //    System.out.println("im sad");
                         hoodSolenoid.set(DoubleSolenoid.Value.kReverse); //this acts as a boolean for speed calculation
                     } else { //far
@@ -353,8 +375,10 @@ public class Shooter {
     //we hope it works because if not we have to copy more 254 code
     public double calculateTopShooterSpeed(double llY){
 
+     //   return kMainTestSpd * kMain2TopMult;
+
         if (isLowerShooting){ //close low goal shooting at a constant speed
-            System.out.println("trying to shoot");
+          //  System.out.println("trying to shoot");
             return kLowGoalSpeed * kLowGoalMain2TopMulti;
         } else if (isCloseUpperShooting){
             return kCloseUpperSpeed * kCloseUpperMain2TopMulti;
@@ -367,11 +391,14 @@ public class Shooter {
         return calculateMainShooterSpeed(llY) * kMain2TopMult;
 
         //2k low goal
-       // return ((llY * -163) + 10000);
+     //  return ((llY * -163) + 10000);
 
     }
     //llY means limelight y
     public double calculateMainShooterSpeed(double llY){
+
+        //TEST HAHAHAHAHAHA I AM IN PAIN
+       // return kMainTestSpd;
 
         /* the hood position will be determined by the limelight
         // value somehwere else in the code. this will effectivley
@@ -387,16 +414,26 @@ public class Shooter {
         }
 
         if(hoodSolenoid.get() == DoubleSolenoid.Value.kForward){
-            return 0.694 * (llY * llY) - 17.5 * llY + 4489;
+
+      //      System.out.println("fwdshoot");
+
+            return (llY*llY) * 3.31 + (47.8*llY) + 4947;
+            //4540 + -6.45x + 1.19x^2
+           // return 1.19 * (llY * llY) - 6.45 * llY + 4540;
+
+      //      return 0.694 * (llY * llY) - 17.5 * llY + 4489; bacon (bad)
 
             //linear??? who knows
             //return -41.5 * llY + 4303;
         } else {
-            return -2.33 * (llY * llY) -3.82 * llY + 5182;
+
+       //     System.out.println("backshoot");
+
+            return 3.36 * (llY * llY) - (105 * llY) + 5392;
         }
         
 
-        //5k on main 0 on upper is low goal PERFECTION
-     //   return (llY * -163) + 5000;
+       // 5k on main 0 on upper is low goal PERFECTION
+      // return (llY * -163) + 5000;
     }
 }

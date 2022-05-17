@@ -31,7 +31,7 @@ import com.ctre.phoenix.motorcontrol.NeutralMode;
 import com.ctre.phoenix.motorcontrol.can.TalonFX;
 import frc.team1699.utils.sensors.LimitSwitch;
 import frc.team1699.utils.sensors.LimeLight;
-
+import frc.team1699.utils.Utils;
 
 public class Robot extends TimedRobot {
 
@@ -52,6 +52,9 @@ public class Robot extends TimedRobot {
     private LimitSwitch shooterBreak;
     private int adjTicks = 0;
     double autotarget = 68000.0;
+
+    private int llAutoBuffer = 0;
+
     private boolean moveDone;
     private boolean linedUp;
     public static boolean inAuto;
@@ -140,14 +143,18 @@ public class Robot extends TimedRobot {
     @Override
     public void autonomousInit() {
         if (do2BallAuto){
+            
             setNeutralMode(NeutralMode.Brake);
             portDriveMaster.setSelectedSensorPosition(0.0);
             moveDone = false;
             linedUp = false;
             inAuto = true;
-            LimeLight.getInstance().turnOn();
+            LimeLight.getInstance().turnOff();
 
             // shooter.toggleSolenoid(shooterAngleSolenoid);
+
+            shooter.deployHopperStopper();
+
             shooter.hoodSolenoid.set(DoubleSolenoid.Value.kForward); // hood up
             System.out.println("hood up in auto (init one)");
             driveTrain.setWantedState(DriveState.AUTONOMOUS);
@@ -157,51 +164,59 @@ public class Robot extends TimedRobot {
 
     @Override
     public void autonomousPeriodic() {
-
+        driveTrain.setWantedState(DriveState.AUTONOMOUS);
         if (do2BallAuto) {
             // shooter.hoodUp(); // you would think this would be easy     
-            
+          //  System.out.println("We are in auto");
             double forward = 0.0, turn = 0.0;
             if (!moveDone) {
-                System.out.println("cool im in not done");
+ //          System.out.println("cool im in not done");
                 if (portDriveMaster.getSelectedSensorPosition() >= autotarget){
-                    System.out.println("cool");
+                //    System.out.println("cool");
                     
                     moveDone = true;
                 } else {
-                    System.out.println("cool i should be moving???????");
+                //    System.out.println("cool i should be moving???????");
                     forward = 0.5;
                 }
             }
-            if (moveDone&&!linedUp) {
+            if (moveDone) {
+
+                if (llAutoBuffer < 35) { //buffer before limelight turns on while we turning for a bit
+                    //set how long said bit is by changing the number!!!!!!!!!!!!!!!!!!!!!!!!!
+                    LimeLight.getInstance().turnOff();
+                    forward = 0;
+                    turn = -0.4;
+                    llAutoBuffer++;
+                } else {
+                    LimeLight.getInstance().turnOn();
+                
                 if (LimeLight.getInstance().getTV() < 1) {
                     forward = 0;
                     turn = -0.4;
 
                 } else {
                     
+                    turn = 0.0;
+
                     driveTrain.setWantedState(DriveState.GOAL_TRACKING);
-                    autoBallProcessor.setProcessorState(AutoBallProcessState.LOADED);
-                    linedUp = true;
-                    System.out.println("someting");
-                    autoBallProcessor.startShooting();                
+                    
+                    
+              //      System.out.println("someting");
+                    
+                    if (Utils.epsilonEquals(LimeLight.getInstance().getTX(), 0.0, 3.0) && LimeLight.getInstance().getTV() > 0){
+                        autoBallProcessor.startShooting();
+                      //  System.out.println("oh no u gotta fix the shooter");
+                    }// else {
+                  //      autoBallProcessor.setProcessorState(AutoBallProcessState.LOADED);
+                  //  }
                 }
 
             }
-            if (linedUp) {
-                // driveTrain.setWantedState(DriveState.AUTONOMOUS);
-                // if (adjTicks <= 50){
-                //     adjTicks++;
-                //     forward = 0.3;
-                //     turn = 0.0;
-                // } else {
-                //     forward = 0.0;,
-                // }
-                //ballProcessor.startShooting();
-            }
-            System.out.println("Sensor Position = " + portDriveMaster.getSelectedSensorPosition());
+        }
+         //   System.out.println("Sensor Position = " + portDriveMaster.getSelectedSensorPosition());
 
-            System.out.println("Speed = " + forward);
+          //  System.out.println("Speed = " + forward);
             driveTrain.setAutoDemand(forward, turn);
 
             shooter.update();
@@ -211,6 +226,7 @@ public class Robot extends TimedRobot {
         }
     }
 
+
     @Override
     public void teleopInit() {
         setNeutralMode(NeutralMode.Brake);
@@ -218,12 +234,14 @@ public class Robot extends TimedRobot {
         driveTrain.setWantedState(DriveState.MANUAL);
         inAuto = false;
         shooter.hoodSolenoid.set(DoubleSolenoid.Value.kForward);
+        LimeLight.getInstance().turnOn();
 
     }
 
     @Override
     public void teleopPeriodic() {
 
+        LimeLight.getInstance().turnOn();
         //AUTO AIM
         if (driveJoystick.getRawButton(2)){
             LimeLight.getInstance().turnOn();
@@ -256,10 +274,10 @@ public class Robot extends TimedRobot {
         }
 
         //HIGH GOAL SHOOT
-        if (opJoystick.getRawButtonPressed(3)) {
+        if (opJoystick.getRawButtonPressed(3) || opJoystick.getRawButtonPressed(6)) {
             ballProcessor.startShooting();
         }
-        if (opJoystick.getRawButtonReleased(3)) {
+        if (opJoystick.getRawButtonReleased(3) || opJoystick.getRawButtonReleased(6)) {
             ballProcessor.stopShooting();
         }
         
@@ -284,19 +302,30 @@ public class Robot extends TimedRobot {
             ballProcessor.setProcessorState(BallProcessState.LOADED);
         }
 
+        //makes sure the hopper that can't be stopper'd gets stopper'd
+        if (!opJoystick.getRawButton(4) && !opJoystick.getRawButton(3) && !opJoystick.getRawButton(6)){
+            hopperStopper.set(DoubleSolenoid.Value.kForward);
+        }
+
+        if (Constants.theRobotIsJustADrivetrainAndNothingMore){
+            ballProcessor.setProcessorState(BallProcessState.IDLE);
+        }
+        intakeHopp.update();
         ballProcessor.update();
         shooter.update();
+        
         driveTrain.update();
-        intakeHopp.update();
+        
       }
 
     @Override
     public void testPeriodic() {climber.climberDown();
         shooter.setWantedState(ShooterState.STOPPED);
-        ballProcessor.stopShooting();
+        ballProcessor.idleShooting();
         setNeutralMode(NeutralMode.Coast);
         shooter.update();
         ballProcessor.update();
+        LimeLight.getInstance().turnOff();
     }
 
     public void setNeutralMode(NeutralMode neutralMode){
