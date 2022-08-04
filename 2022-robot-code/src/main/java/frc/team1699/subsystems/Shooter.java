@@ -170,12 +170,13 @@ public class Shooter {
             
             break;
             case SHOOT:
-
-            if (opJoystick.getRawButton(6)){
-                isCloseUpperShooting = true;
-                hoodSolenoid.set(DoubleSolenoid.Value.kReverse);
-            } else {isCloseUpperShooting = false;}
-
+            
+            if(!Constants.usingWiimote){
+                if (opJoystick.getRawButton(6)){
+                    isCloseUpperShooting = true;
+                    hoodSolenoid.set(DoubleSolenoid.Value.kReverse);
+                } else {isCloseUpperShooting = false;}
+            }
                 hoodTransition++; //this is set to 0 in the start shooting method in ballprocessor
                 if (Robot.inAuto) {
                     targetVelocityMain = calculateMainShooterSpeed(LimeLight.getInstance().getTY());
@@ -260,12 +261,13 @@ public class Shooter {
             break;
             case SHOOT: 
             
-            if (opJoystick.getRawButton(6)){
-                isCloseUpperShooting = true;
-                hoodSolenoid.set(DoubleSolenoid.Value.kReverse);
-                
-            } else {isCloseUpperShooting = false;}
-
+            if (!Constants.usingWiimote){
+                if (opJoystick.getRawButton(6)){
+                    isCloseUpperShooting = true;
+                    hoodSolenoid.set(DoubleSolenoid.Value.kReverse);
+                    
+                } else {isCloseUpperShooting = false;}
+            }
             if (LimeLight.getInstance().getTV()<1){ //if no target is seen
 
                 if (isLowerShooting){

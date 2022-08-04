@@ -4,9 +4,14 @@ public class Constants {
 
     //cool things
     /**i make the robo slo*/
-    public static final double coefficientOfSpeedThatGetsMultipliedToMakeTheRobotSlower = 0.30;
+    public static final double coefficientOfSpeedThatGetsMultipliedToMakeTheRobotSlower = 1;
 
     public static final boolean theRobotIsJustADrivetrainAndNothingMore = true;
+
+    //Wiimote Things
+    public static final boolean usingWiimote = false;
+    public static final int kWiimotePort = 0;
+    //in order to use the wiimote, you must have the companion program running. it does most of the heavy lifting.
 
     //joysticks
     public static final int kDriveJoystickPort = 0;

@@ -1,6 +1,4 @@
 package frc.team1699.subsystems;
-
-
 import com.kauailabs.navx.frc.AHRS;
 import edu.wpi.first.wpilibj.Joystick;
 import frc.team1699.utils.sensors.LimeLight;
@@ -20,7 +18,8 @@ public class DriveTrain {
     private final Joystick joystick;
     private DriveState systemState, wantedState;
     private double portCommand, starCommand;
-
+    private final double spiid = 0.50; // speed constant for wiimote
+    private double twiist;
 
 
 
@@ -80,8 +79,9 @@ public class DriveTrain {
         //so many followers i should call it hinduism
         starDrive2.follow(starDrive1, FollowerType.PercentOutput);
         starDrive3.follow(starDrive1, FollowerType.PercentOutput);
-
+        
         this.joystick = joystick;
+
 
         wantedState = DriveState.MANUAL;
     }
@@ -100,7 +100,7 @@ public class DriveTrain {
             aligned = false;
             handleGoalTrackingTransition();
         }
-
+        aligned = false;
         systemState = wantedState;
         runSubsystem(); 
 
@@ -139,6 +139,18 @@ public class DriveTrain {
             break;
             default:
                 break;
+            
+            case WIIMOTE: // motion controls... hold on for dear life.
+                twiist = joystick.getX();
+
+                if (Utils.epsilonEquals(twiist, 0, 0.03)){ // adds a 3% deadband becase motion controls be crazy
+                    twiist = 0;
+                }
+                if (joystick.getRawButton(2)) { // 2 is fwd
+                    runArcadeDrive(spiid, twiist);
+                } else if (joystick.getRawButton(1)) { // 1 is back
+                    runArcadeDrive(-spiid, twiist);
+                }
         }
     }
 
@@ -192,6 +204,7 @@ public class DriveTrain {
     public enum DriveState {
         MANUAL,
         GOAL_TRACKING,
-        AUTONOMOUS
+        AUTONOMOUS,
+        WIIMOTE
     }
 }

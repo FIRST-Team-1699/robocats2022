@@ -36,6 +36,7 @@ import frc.team1699.utils.Utils;
 public class Robot extends TimedRobot {
 
     private Joystick driveJoystick, opJoystick;
+    public Joystick wiimote;
     public PneumaticsModuleType CTREPCM = PneumaticsModuleType.CTREPCM;
     private DriveTrain driveTrain;
     private Climber climber;
@@ -68,10 +69,6 @@ public class Robot extends TimedRobot {
     @Override
     public void robotInit() {
 
-        //Setup joystick
-        driveJoystick = new Joystick(0);
-        opJoystick = new Joystick(1);
-
         //Setup port drive motors. they get follower'd in the drivetrain class
         portDriveMaster = new TalonFX(Constants.kPortDrivePort1);
         portDriveFollower1 = new TalonFX(Constants.kPortDrivePort2);
@@ -94,8 +91,18 @@ public class Robot extends TimedRobot {
         portDriveMaster.configOpenloopRamp(0.1);
         starDriveMaster.configOpenloopRamp(0.1);
         
-        //Setup drive train
-        driveTrain = new DriveTrain(portDriveMaster, portDriveFollower1, portDriveFollower2, starDriveMaster, starDriveFollower1, starDriveFollower2, driveJoystick);
+
+        //Setup joysticks and drivetrain
+        if (Constants.usingWiimote){
+            wiimote = new Joystick(Constants.kWiimotePort);
+            driveTrain = new DriveTrain(portDriveMaster, portDriveFollower1, portDriveFollower2, starDriveMaster, starDriveFollower1, starDriveFollower2, wiimote);
+        } else {
+            driveJoystick = new Joystick(0);
+            opJoystick = new Joystick(1);
+
+            driveTrain = new DriveTrain(portDriveMaster, portDriveFollower1, portDriveFollower2, starDriveMaster, starDriveFollower1, starDriveFollower2, driveJoystick);
+        }
+        
 
         //Setup intake motor
         intakeHoppTalon = new TalonSRX(Constants.kIntakeHoppPort);
@@ -242,69 +249,110 @@ public class Robot extends TimedRobot {
     public void teleopPeriodic() {
 
         LimeLight.getInstance().turnOn();
-        //AUTO AIM
-        if (driveJoystick.getRawButton(2)){
-            LimeLight.getInstance().turnOn();
-            driveTrain.setWantedState(DriveState.GOAL_TRACKING);
-        }
-        if (driveJoystick.getRawButtonReleased(2)){
-       //     LimeLight.getInstance().turnOff();
-            driveTrain.setWantedState(DriveState.MANUAL);
-        }
 
-        //ENABLE LIMELIGHT
-        if (opJoystick.getRawButtonPressed(1)){
-            LimeLight.getInstance().turnOn();
-        }
-        if (opJoystick.getRawButtonReleased(1)){
-         //   LimeLight.getInstance().turnOff();
-        }
+        if (!Constants.usingWiimote){
 
-        //INTAKE
-        if (driveJoystick.getTriggerPressed()){
-            ballProcessor.setProcessorState(BallProcessState.COLLECTING);
-        }
-        if (driveJoystick.getTriggerReleased()) {
-            ballProcessor.setProcessorState(BallProcessState.LOADED);
-        }
+            //AUTO AIM
+            if (driveJoystick.getRawButton(2)){
+                LimeLight.getInstance().turnOn();
+                driveTrain.setWantedState(DriveState.GOAL_TRACKING);
+            }
+            if (driveJoystick.getRawButtonReleased(2)){
+                //LimeLight.getInstance().turnOff();
+                driveTrain.setWantedState(DriveState.MANUAL);
+            }
 
-        //CLIMB
-        if (opJoystick.getRawButtonPressed(9)) {
-            climber.climberToggle();
-        }
+            //ENABLE LIMELIGHT
+            if (opJoystick.getRawButtonPressed(1)){
+                LimeLight.getInstance().turnOn();
+            }
+            if (opJoystick.getRawButtonReleased(1)){
+            //   LimeLight.getInstance().turnOff();
+            }
 
-        //HIGH GOAL SHOOT
-        if (opJoystick.getRawButtonPressed(3) || opJoystick.getRawButtonPressed(6)) {
-            ballProcessor.startShooting();
-        }
-        if (opJoystick.getRawButtonReleased(3) || opJoystick.getRawButtonReleased(6)) {
-            ballProcessor.stopShooting();
-        }
+            //INTAKE
+            if (driveJoystick.getTriggerPressed()){
+                ballProcessor.setProcessorState(BallProcessState.COLLECTING);
+            }
+            if (driveJoystick.getTriggerReleased()) {
+                ballProcessor.setProcessorState(BallProcessState.LOADED);
+            }
+
+            //CLIMB
+            if (opJoystick.getRawButtonPressed(9)) {
+                climber.climberToggle();
+            }
+
+            //HIGH GOAL SHOOT
+            if (opJoystick.getRawButtonPressed(3) || opJoystick.getRawButtonPressed(6)) {
+                ballProcessor.startShooting();
+            }
+            if (opJoystick.getRawButtonReleased(3) || opJoystick.getRawButtonReleased(6)) {
+                ballProcessor.stopShooting();
+            }
+            
+            //LOW GOAL SHOOT
+            if (opJoystick.getRawButtonPressed(4)){
+                ballProcessor.startLowerShooting();
+            }
+            if (opJoystick.getRawButtonReleased(4)){
+                ballProcessor.stopShooting();
+            }
+
+            //MANUAL HOOD
+            if (opJoystick.getRawButtonPressed(5)) {
+                shooter.toggleHood();
+            }
+
+            //BACKDRIVE
+            if (driveJoystick.getRawButtonPressed(3)){
+                ballProcessor.setProcessorState(BallProcessState.PURGING);
+            }
+            if (driveJoystick.getRawButtonReleased(3)) {
+                ballProcessor.setProcessorState(BallProcessState.LOADED);
+            }
         
-        //LOW GOAL SHOOT
-        if (opJoystick.getRawButtonPressed(4)){
-            ballProcessor.startLowerShooting();
-        }
-        if (opJoystick.getRawButtonReleased(4)){
-            ballProcessor.stopShooting();
-        }
 
-        //MANUAL HOOD
-        if (opJoystick.getRawButtonPressed(5)) {
-            shooter.toggleHood();
-        }
+            //makes sure the hopper that can't be stopper'd gets stopper'd
+            if (!opJoystick.getRawButton(4) && !opJoystick.getRawButton(3) && !opJoystick.getRawButton(6)){
+                hopperStopper.set(DoubleSolenoid.Value.kForward);
+            }
+        } else { // the controls when using wiimote
 
-        //BACKDRIVE
-        if (driveJoystick.getRawButtonPressed(3)){
-            ballProcessor.setProcessorState(BallProcessState.PURGING);
-        }
-        if (driveJoystick.getRawButtonReleased(3)) {
-            ballProcessor.setProcessorState(BallProcessState.LOADED);
-        }
+            //AUTO AIM - B button
+            if (wiimote.getRawButton(4)){                                // ___________________________________________
+                LimeLight.getInstance().turnOn();                        //|      _            (+)                     |
+                driveTrain.setWantedState(DriveState.GOAL_TRACKING);     //|   __| |__   ___             _      _      |
+            }                                                            //|  |__   __| (_A_)  ()       (1)    (2)     |
+            if (wiimote.getRawButtonReleased(4)){                        //|     |_|                                   |
+                //LimeLight.getInstance().turnOff();                     //'()_________________(|)_____________________'
+                driveTrain.setWantedState(DriveState.WIIMOTE);
+            }
 
-        //makes sure the hopper that can't be stopper'd gets stopper'd
-        if (!opJoystick.getRawButton(4) && !opJoystick.getRawButton(3) && !opJoystick.getRawButton(6)){
-            hopperStopper.set(DoubleSolenoid.Value.kForward);
+            //INTAKE - A button
+            if (wiimote.getRawButtonPressed(5)){
+                ballProcessor.setProcessorState(BallProcessState.COLLECTING);
+            }
+            if (wiimote.getRawButtonReleased(5)) {
+                ballProcessor.setProcessorState(BallProcessState.LOADED);
+            }
+
+            //HIGH GOAL SHOOT - Right D-Pad button
+            if (wiimote.getRawButtonPressed(2)) {
+                ballProcessor.startShooting();
+            }
+            if (wiimote.getRawButtonReleased(2)) {
+                ballProcessor.stopShooting();
+            }
+
+            //BACKDRIVE - Left D-Pad button
+            if (wiimote.getRawButtonPressed(3)){
+                ballProcessor.setProcessorState(BallProcessState.PURGING);
+            }
+            if (wiimote.getRawButtonReleased(3)) {
+                ballProcessor.setProcessorState(BallProcessState.LOADED);
+            }
+            //not shown here, 2 is forwards, 1 is backwards.
         }
 
         if (Constants.theRobotIsJustADrivetrainAndNothingMore){
@@ -316,7 +364,7 @@ public class Robot extends TimedRobot {
         
         driveTrain.update();
         
-      }
+    }
 
     @Override
     public void testPeriodic() {climber.climberDown();
