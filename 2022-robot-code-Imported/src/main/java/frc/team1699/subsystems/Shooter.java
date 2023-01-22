@@ -10,7 +10,6 @@ import edu.wpi.first.wpilibj.Joystick;
 import frc.robot.Robot;
 import frc.team1699.Constants;
 import frc.team1699.utils.Gains;
-import frc.team1699.utils.sim.PhysicsSim;
 import com.ctre.phoenix.motorcontrol.TalonFXControlMode;
 import com.ctre.phoenix.motorcontrol.TalonFXFeedbackDevice;
 import com.ctre.phoenix.motorcontrol.InvertType;
@@ -153,7 +152,6 @@ public class Shooter {
     // }
 
     public void simulationPeriodic() {
-        PhysicsSim.getInstance().run();
     }
 
     public void update() {

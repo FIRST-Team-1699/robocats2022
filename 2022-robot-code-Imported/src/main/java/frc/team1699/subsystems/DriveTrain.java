@@ -1,7 +1,6 @@
 package frc.team1699.subsystems;
 
 
-import com.kauailabs.navx.frc.AHRS;
 import edu.wpi.first.wpilibj.Joystick;
 import frc.team1699.utils.sensors.LimeLight;
 import frc.team1699.utils.Utils;
@@ -13,6 +12,8 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import com.ctre.phoenix.motorcontrol.TalonFXInvertType;
 import frc.team1699.Constants;
 
+import com.kauailabs.navx.frc.AHRS;
+
 public class DriveTrain {
 
     //Constants TODO Change https://docs.wpilib.org/en/latest/docs/software/examples-tutorials/trajectory-tutorial/entering-constants.html
@@ -20,17 +21,6 @@ public class DriveTrain {
     private final Joystick joystick;
     private DriveState systemState, wantedState;
     private double portCommand, starCommand;
-
-
-
-
-
-
-
-    
-
-
-
 
 
 
@@ -50,6 +40,7 @@ public class DriveTrain {
     double autoFwdDemand = 0.0;
     double autoTurnDemand = 0.0;
 
+    private AHRS gyro = new AHRS();
 
     /**
      * yuh i'ssa drivetrain
@@ -64,7 +55,7 @@ public class DriveTrain {
     public DriveTrain(final TalonFX portDrive1, final TalonFX portDrive2, final TalonFX portDrive3, 
                       final TalonFX starDrive1, final TalonFX starDrive2, final TalonFX starDrive3, 
                       final Joystick joystick) {
-        
+        gyro.zeroYaw();
         this.portDrive1 = portDrive1;
         this.portDrive2 = portDrive2;
         this.portDrive3 = portDrive3;
@@ -87,6 +78,8 @@ public class DriveTrain {
     }
 
     public void update() {
+
+        System.out.println(gyro.getAngle());
 
        if (systemState == wantedState) {
             runSubsystem();
