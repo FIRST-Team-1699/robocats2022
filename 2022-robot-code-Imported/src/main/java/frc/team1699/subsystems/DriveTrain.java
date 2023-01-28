@@ -40,7 +40,7 @@ public class DriveTrain {
     double autoFwdDemand = 0.0;
     double autoTurnDemand = 0.0;
 
-    private AHRS gyro = new AHRS();
+    private AHRS gyro;
 
     /**
      * yuh i'ssa drivetrain
@@ -55,7 +55,9 @@ public class DriveTrain {
     public DriveTrain(final TalonFX portDrive1, final TalonFX portDrive2, final TalonFX portDrive3, 
                       final TalonFX starDrive1, final TalonFX starDrive2, final TalonFX starDrive3, 
                       final Joystick joystick) {
-        gyro.zeroYaw();
+
+        gyro = new AHRS();
+        
         this.portDrive1 = portDrive1;
         this.portDrive2 = portDrive2;
         this.portDrive3 = portDrive3;
@@ -79,7 +81,17 @@ public class DriveTrain {
 
     public void update() {
 
-        System.out.println(gyro.getAngle());
+        System.out.println("Gyro \"pitch\": " + ((int) (gyro.getPitch())));
+        System.out.println("Gyro \"yaw\": " + ((int) (gyro.getYaw())));
+        System.out.println("Gyro \"roll\": " + ((int) gyro.getRoll()));
+
+        // // stupid test things
+        // if(gyro.getPitch() >= 0 && gyro.getPitch() <= 10) {
+        //     Constants.kCoefficientOfSpeedThatGetsMultipliedToMakeTheRobotSlower = 1.0;
+        // } else {
+        //     Constants.kCoefficientOfSpeedThatGetsMultipliedToMakeTheRobotSlower = 0.3;
+        // }
+
 
        if (systemState == wantedState) {
             runSubsystem();
@@ -168,8 +180,8 @@ public class DriveTrain {
 
 
        // System.out.println("port: " + portOutput + " star: " + starOutput);
-        portDrive1.set(TalonFXControlMode.PercentOutput, portOutput * Constants.coefficientOfSpeedThatGetsMultipliedToMakeTheRobotSlower);
-        starDrive1.set(TalonFXControlMode.PercentOutput, starOutput * Constants.coefficientOfSpeedThatGetsMultipliedToMakeTheRobotSlower);
+        portDrive1.set(TalonFXControlMode.PercentOutput, portOutput * Constants.kCoefficientOfSpeedThatGetsMultipliedToMakeTheRobotSlower);
+        starDrive1.set(TalonFXControlMode.PercentOutput, starOutput * Constants.kCoefficientOfSpeedThatGetsMultipliedToMakeTheRobotSlower);
     }
 
 

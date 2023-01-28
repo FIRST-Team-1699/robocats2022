@@ -4,9 +4,9 @@ public class Constants {
 
     //cool things
     /**i make the robo slo*/
-    public static final double coefficientOfSpeedThatGetsMultipliedToMakeTheRobotSlower = 1;
+    public static final double kCoefficientOfSpeedThatGetsMultipliedToMakeTheRobotSlower = 1;
 
-    public static final boolean theRobotIsJustADrivetrainAndNothingMore = true;
+    public static final boolean theRobotIsJustADrivetrainAndNothingMore = false;
 
     //joysticks
     public static final int kDriveJoystickPort = 0;

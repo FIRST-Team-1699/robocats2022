@@ -32,9 +32,13 @@ import com.ctre.phoenix.motorcontrol.can.TalonFX;
 import frc.team1699.utils.sensors.LimitSwitch;
 import frc.team1699.utils.sensors.LimeLight;
 import frc.team1699.utils.Utils;
+import com.kauailabs.navx.frc.AHRS;
+
 
 public class Robot extends TimedRobot {
 
+    
+    private AHRS gyro;
     private Joystick driveJoystick, opJoystick;
     public PneumaticsModuleType CTREPCM = PneumaticsModuleType.CTREPCM;
     private DriveTrain driveTrain;
@@ -68,6 +72,7 @@ public class Robot extends TimedRobot {
     @Override
     public void robotInit() {
 
+        gyro = new AHRS();
         //Setup joystick
         driveJoystick = new Joystick(0);
         opJoystick = new Joystick(1);
@@ -326,6 +331,10 @@ public class Robot extends TimedRobot {
         shooter.update();
         ballProcessor.update();
         LimeLight.getInstance().turnOff();
+
+        System.out.println("Gyro \"pitch\": " + ((int) (gyro.getPitch())));
+        System.out.println("Gyro \"yaw\": " + ((int) (gyro.getYaw())));
+        System.out.println("Gyro \"roll\": " + ((int) gyro.getRoll()));
     }
 
     public void setNeutralMode(NeutralMode neutralMode){
