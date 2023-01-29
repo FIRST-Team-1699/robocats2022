@@ -42,6 +42,10 @@ public class DriveTrain {
 
     private AHRS gyro;
 
+    // balancing stuff
+    private int balancingTicks = 0;
+    private double balancingSpeed = 0.0;
+
     /**
      * yuh i'ssa drivetrain
      * @param portDrive1
@@ -82,8 +86,8 @@ public class DriveTrain {
     public void update() {
 
         System.out.println("Gyro \"pitch\": " + ((int) (gyro.getPitch())));
-        System.out.println("Gyro \"yaw\": " + ((int) (gyro.getYaw())));
-        System.out.println("Gyro \"roll\": " + ((int) gyro.getRoll()));
+        // System.out.println("Gyro \"yaw\": " + ((int) (gyro.getYaw())));
+        // System.out.println("Gyro \"roll\": " + ((int) gyro.getRoll()));
 
         // // stupid test things
         // if(gyro.getPitch() >= 0 && gyro.getPitch() <= 10) {
@@ -105,6 +109,7 @@ public class DriveTrain {
             aligned = false;
             handleGoalTrackingTransition();
         }
+
 
         systemState = wantedState;
         runSubsystem(); 
@@ -142,39 +147,65 @@ public class DriveTrain {
             case AUTONOMOUS:
                 runArcadeDrive(autoTurnDemand, autoFwdDemand);
             break;
+            case BALANCING:
+                // double pitch = gyro.getPitch();
+                // if (pitch > 10.0 && pitch < 30.0){ // distance from balanced is 5
+                //     balancingSpeed = -0.3;
+                //     runArcadeDrive(0, balancingSpeed);
+                //     System.out.println("balancing backwards");
+                // } else if(pitch < -5.0 && pitch > -30.0){
+                //     balancingSpeed = 0.3;
+                //     runArcadeDrive(0, balancingSpeed);
+                //     System.out.println("balancing forwards");
+                // } else {
+                //     runArcadeDrive(0, 0);
+                //     System.out.println("balanced i hope");
+                // }
+                double pitch = gyro.getPitch();
+                pitch -= 4.0;
+                double balSpeed = -pitch * 0.028;
+                if(Math.abs(balSpeed) >= 0.325) {
+                    balSpeed = balSpeed / Math.abs(balSpeed) * 0.325;
+                }
+                if(pitch < 3 && pitch > -3) {
+                    runArcadeDrive(0, 0);
+                } else {
+                    System.out.println(balSpeed);
+                    runArcadeDrive(0, balSpeed);
+                }
             default:
                 break;
         }
     }
 
     //WPILib Differential Drive
-    public void runArcadeDrive(double throttle, double rotate) {
+    public void runArcadeDrive(double rotate, double throttle) {
         double portOutput = 0.0;
         double starOutput = 0.0;
 
         //TODO add deadband
-        throttle = Math.copySign(throttle * throttle, throttle);
         rotate = Math.copySign(rotate * rotate, rotate);
+        throttle = Math.copySign(throttle * throttle, throttle);
 
-        double maxInput = Math.copySign(Math.max(Math.abs(throttle), Math.abs(rotate)), throttle);
+        double maxInput = Math.copySign(Math.max(Math.abs(rotate), Math.abs(throttle)), rotate);
 
-        if (throttle >= 0.0) {
+        if (rotate >= 0.0) {
             // First quadrant, else second quadrant
-            if (rotate >= 0.0) {
+            if (throttle >= 0.0) {
                 portOutput = maxInput;
-                starOutput = throttle - rotate;
+                starOutput = rotate - throttle;
             } else {
-                portOutput = throttle + rotate;
+                portOutput = rotate + throttle;
                 starOutput = maxInput;
             }
         } else {
             // Third quadrant, else fourth quadrant
-            if (rotate >= 0.0) {
-                portOutput = throttle + rotate;
+            if (throttle >= 0.0) {
+                portOutput = rotate + throttle;
                 starOutput = maxInput;
             } else {
                 portOutput = maxInput;
-                starOutput = throttle - rotate;
+                starOutput = rotate - throttle;
             }
         }
 
@@ -197,6 +228,7 @@ public class DriveTrain {
     public enum DriveState {
         MANUAL,
         GOAL_TRACKING,
-        AUTONOMOUS
+        AUTONOMOUS,
+        BALANCING
     }
 }
