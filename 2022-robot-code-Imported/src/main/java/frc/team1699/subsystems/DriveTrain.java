@@ -149,11 +149,12 @@ public class DriveTrain {
             break;
             case BALANCING:
                 // double pitch = gyro.getPitch();
-                // if (pitch > 10.0 && pitch < 30.0){ // distance from balanced is 5
+                // pitch -= 4.0;
+                // if (pitch > 2.5){ // distance from balanced is 5
                 //     balancingSpeed = -0.3;
                 //     runArcadeDrive(0, balancingSpeed);
                 //     System.out.println("balancing backwards");
-                // } else if(pitch < -5.0 && pitch > -30.0){
+                // } else if(pitch < -2.5){
                 //     balancingSpeed = 0.3;
                 //     runArcadeDrive(0, balancingSpeed);
                 //     System.out.println("balancing forwards");
@@ -161,9 +162,10 @@ public class DriveTrain {
                 //     runArcadeDrive(0, 0);
                 //     System.out.println("balanced i hope");
                 // }
+
                 double pitch = gyro.getPitch();
                 pitch -= 4.0;
-                double balSpeed = -pitch * 0.028;
+                double balSpeed = -pitch * 0.04;
                 if(Math.abs(balSpeed) >= 0.325) {
                     balSpeed = balSpeed / Math.abs(balSpeed) * 0.325;
                 }

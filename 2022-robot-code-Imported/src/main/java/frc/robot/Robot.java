@@ -274,9 +274,9 @@ public class Robot extends TimedRobot {
         }
 
         //CLIMB
-        if (opJoystick.getRawButtonPressed(9)) {
-            climber.climberToggle();
-        }
+        // if (opJoystick.getRawButtonPressed(9)) {
+        //     climber.climberToggle();
+        // }
 
         //HIGH GOAL SHOOT
         if (opJoystick.getRawButtonPressed(3) || opJoystick.getRawButtonPressed(6)) {
