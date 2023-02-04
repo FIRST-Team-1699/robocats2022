@@ -11,7 +11,7 @@ import com.ctre.phoenix.motorcontrol.TalonFXControlMode;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import com.ctre.phoenix.motorcontrol.TalonFXInvertType;
 import frc.team1699.Constants;
-
+import frc.robot.Robot;
 import com.kauailabs.navx.frc.AHRS;
 
 public class DriveTrain {
@@ -61,7 +61,7 @@ public class DriveTrain {
                       final Joystick joystick) {
 
         gyro = new AHRS();
-        
+
         this.portDrive1 = portDrive1;
         this.portDrive2 = portDrive2;
         this.portDrive3 = portDrive3;
@@ -162,19 +162,29 @@ public class DriveTrain {
                 //     runArcadeDrive(0, 0);
                 //     System.out.println("balanced i hope");
                 // }
-
+                double turnSpeed;
+                if (!(Math.abs((int) gyro.getYaw() - Robot.startingYaw) < 3)){
+                    turnSpeed = .3;
+                    if (gyro.getYaw() < 0){
+                        turnSpeed = -turnSpeed;
+                    }
+                    System.out.println("Trying to turn");
+                } else {
+                    turnSpeed = 0;
+                }
                 double pitch = gyro.getPitch();
                 pitch -= 4.0;
-                double balSpeed = -pitch * 0.04;
+                double balSpeed = -pitch * 0.4;
                 if(Math.abs(balSpeed) >= 0.325) {
                     balSpeed = balSpeed / Math.abs(balSpeed) * 0.325;
                 }
                 if(pitch < 3 && pitch > -3) {
-                    runArcadeDrive(0, 0);
+                    runArcadeDrive(turnSpeed, 0);
                 } else {
                     System.out.println(balSpeed);
-                    runArcadeDrive(0, balSpeed);
+                    runArcadeDrive(turnSpeed, balSpeed);
                 }
+                System.out.println(gyro.getYaw());
             default:
                 break;
         }

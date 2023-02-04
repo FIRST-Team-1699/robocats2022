@@ -67,7 +67,11 @@ public class Robot extends TimedRobot {
 
 
     //DISABLE AUTO
-    private boolean do2BallAuto = true;
+    private boolean do2BallAuto = false;
+
+    // STARTING HEADING
+    public static int startingYaw;
+    public static int testYaw = 0;
 
     @Override
     public void robotInit() {
@@ -147,8 +151,9 @@ public class Robot extends TimedRobot {
 
     @Override
     public void autonomousInit() {
+        startingYaw = (int)gyro.getYaw();
+        System.out.println(startingYaw);
         if (do2BallAuto){
-            
             setNeutralMode(NeutralMode.Brake);
             portDriveMaster.setSelectedSensorPosition(0.0);
             moveDone = false;
@@ -164,12 +169,16 @@ public class Robot extends TimedRobot {
             System.out.println("hood up in auto (init one)");
             driveTrain.setWantedState(DriveState.AUTONOMOUS);
             autoBallProcessor.setProcessorState(AutoBallProcessState.COLLECTING);
+        } else {
+            autoBallProcessor.setProcessorState(AutoBallProcessState.LOADED);
+            driveTrain.setWantedState(DriveState.AUTONOMOUS);
         }
     }
 
+    private boolean onRamp = false;
+
     @Override
     public void autonomousPeriodic() {
-        driveTrain.setWantedState(DriveState.AUTONOMOUS);
         if (do2BallAuto) {
             // shooter.hoodUp(); // you would think this would be easy     
           //  System.out.println("We are in auto");
@@ -227,6 +236,28 @@ public class Robot extends TimedRobot {
             shooter.update();
             intakeHopp.update();
             autoBallProcessor.update();
+            driveTrain.update();
+        } else {
+            portDriveMaster.setNeutralMode(NeutralMode.Brake);
+            starDriveMaster.setNeutralMode(NeutralMode.Brake);
+            double turnVal = 0.0;
+            if (!(Math.abs((int) gyro.getYaw() - Robot.startingYaw) < 3)){
+                turnVal = .3;
+                if(gyro.getYaw() < 0){
+                    turnVal = -turnVal;
+                }
+            } else {
+                turnVal = 0;
+            }
+            System.out.println("Gyro Pitch: " + gyro.getPitch());
+            if (gyro.getPitch() - 4.0 > 12.0){
+                onRamp = true;
+                driveTrain.setWantedState(DriveState.BALANCING);
+                // do autobalance
+                System.out.println("i wannaa do autobalance");
+            } else if (!onRamp) {
+                driveTrain.setAutoDemand(-.45, turnVal);
+            }
             driveTrain.update();
         }
     }
