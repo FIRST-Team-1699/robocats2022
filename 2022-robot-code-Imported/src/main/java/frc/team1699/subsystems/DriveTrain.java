@@ -13,6 +13,7 @@ import com.ctre.phoenix.motorcontrol.TalonFXInvertType;
 import frc.team1699.Constants;
 import frc.robot.Robot;
 import com.kauailabs.navx.frc.AHRS;
+import edu.wpi.first.math.controller.PIDController;
 
 public class DriveTrain {
 
@@ -34,14 +35,16 @@ public class DriveTrain {
 
     //aiming constants
     //final double kSteer = 0.05; THE ORIGINAL VALUE
-    final double kSteer = 0.040;
+    final double kSteer = 0.035;
+    final double kSteerI = 0.02;
     final double kDrive = 0.06;
 
     double autoFwdDemand = 0.0;
     double autoTurnDemand = 0.0;
 
     private AHRS gyro;
-
+    private PIDController driveToTargetLoop;
+    private PIDController autoAimLoop;
     // balancing stuff
     private int balancingTicks = 0;
     private double balancingSpeed = 0.0;
@@ -61,6 +64,11 @@ public class DriveTrain {
                       final Joystick joystick) {
 
         gyro = new AHRS();
+        
+        driveToTargetLoop = new PIDController(-1.0/60.0, 0, 0);
+        driveToTargetLoop.setTolerance(3.0);
+
+        autoAimLoop = new PIDController(kSteer, kSteerI, 0);
 
         this.portDrive1 = portDrive1;
         this.portDrive2 = portDrive2;
@@ -85,16 +93,9 @@ public class DriveTrain {
 
     public void update() {
 
-        System.out.println("Gyro \"pitch\": " + ((int) (gyro.getPitch())));
+        // System.out.println("Gyro \"pitch\": " + ((int) (gyro.getPitch())));
         // System.out.println("Gyro \"yaw\": " + ((int) (gyro.getYaw())));
         // System.out.println("Gyro \"roll\": " + ((int) gyro.getRoll()));
-
-        // // stupid test things
-        // if(gyro.getPitch() >= 0 && gyro.getPitch() <= 10) {
-        //     Constants.kCoefficientOfSpeedThatGetsMultipliedToMakeTheRobotSlower = 1.0;
-        // } else {
-        //     Constants.kCoefficientOfSpeedThatGetsMultipliedToMakeTheRobotSlower = 0.3;
-        // }
 
 
        if (systemState == wantedState) {
@@ -131,16 +132,23 @@ public class DriveTrain {
         switch (systemState) {
             case MANUAL:
                 runArcadeDrive(joystick.getX(), -joystick.getY());
+                System.out.println("manual");
                 break;
             case GOAL_TRACKING:
 
                 LimeLight.getInstance().turnOn();
                 if (LimeLight.getInstance().getTV() > 0){
-                    runArcadeDrive(LimeLight.getInstance().getTX()*kSteer, -(LimeLight.getInstance().getTY()-20)*kDrive*0);
+                    runArcadeDrive(-(autoAimLoop.calculate(LimeLight.getInstance().getTX())), 0);
+                   System.out.println(-(autoAimLoop.calculate(LimeLight.getInstance().getTX())));
                 } else {
-                    runArcadeDrive(0, 0);
-              //      System.out.println("no target");
+                    runArcadeDrive(0,0);
                 }
+            //     if (LimeLight.getInstance().getTV() > 0){
+            //         runArcadeDrive(LimeLight.getInstance().getTX()*kSteer, -(LimeLight.getInstance().getTY()-20)*kDrive*0);
+            //     } else {
+            //         runArcadeDrive(0, 0);
+            //   //      System.out.println("no target");
+            //     }
 
 
                 break;
@@ -185,6 +193,13 @@ public class DriveTrain {
                     runArcadeDrive(turnSpeed, balSpeed);
                 }
                 System.out.println(gyro.getYaw());
+                break;
+            case POSITIONING:
+                if (LimeLight.getInstance().getTV() > 0){
+                    runArcadeDrive(0, driveToTargetLoop.calculate(LimeLight.getInstance().getDistanceFromTarget(), 45.0));
+                    System.out.println(driveToTargetLoop.calculate(LimeLight.getInstance().getDistanceFromTarget(), 45.0));
+                }
+                break;
             default:
                 break;
         }
@@ -241,6 +256,7 @@ public class DriveTrain {
         MANUAL,
         GOAL_TRACKING,
         AUTONOMOUS,
-        BALANCING
+        BALANCING,
+        POSITIONING
     }
 }

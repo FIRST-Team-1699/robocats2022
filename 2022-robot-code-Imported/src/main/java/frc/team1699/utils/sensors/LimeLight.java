@@ -44,4 +44,18 @@ public class LimeLight {
     public void blink() {
         table.getEntry("ledMode").setNumber(2);
     }
+
+    public void setPipeline(double index){
+        table.getEntry("pipeline").setNumber(index);
+    }
+
+    public double getDistanceFromTarget(){
+        double targetOffsetAngle_Vertical = getTY();
+        double limelightMountAngle = 47.0;
+        double limelightHeight = 23.5;
+        double targetHeight = 71;
+        double angleToGoalRadians = (limelightMountAngle + targetOffsetAngle_Vertical) * (3.14159 / 180.0);
+        double distanceToGoal = (targetHeight - limelightHeight)/Math.tan(angleToGoalRadians);
+        return distanceToGoal;
+    }
 }

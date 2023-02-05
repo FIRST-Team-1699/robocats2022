@@ -278,6 +278,10 @@ public class Robot extends TimedRobot {
     public void teleopPeriodic() {
 
         LimeLight.getInstance().turnOn();
+        LimeLight.getInstance().setPipeline(1.0);
+        if (LimeLight.getInstance().getTV() > 0){
+            System.out.println(LimeLight.getInstance().getDistanceFromTarget() + " inches away from the target");
+        }
         //AUTO AIM
         if (driveJoystick.getRawButton(2)){
             LimeLight.getInstance().turnOn();
@@ -347,6 +351,15 @@ public class Robot extends TimedRobot {
             driveTrain.setWantedState(DriveState.MANUAL);
         }
 
+        // POSITIONING FROM APRILTAG
+        if (driveJoystick.getRawButton(12)){
+            driveTrain.setWantedState(DriveState.POSITIONING);
+        }
+        
+        if (driveJoystick.getRawButtonReleased(12)){
+            driveTrain.setWantedState(DriveState.MANUAL);
+        }
+
         //makes sure the hopper that can't be stopper'd gets stopper'd
         if (!opJoystick.getRawButton(4) && !opJoystick.getRawButton(3) && !opJoystick.getRawButton(6)){
             hopperStopper.set(DoubleSolenoid.Value.kForward);
@@ -358,7 +371,6 @@ public class Robot extends TimedRobot {
         intakeHopp.update();
         ballProcessor.update();
         shooter.update();
-        
         driveTrain.update();
         
       }
