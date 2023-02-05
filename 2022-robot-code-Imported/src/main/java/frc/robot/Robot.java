@@ -271,14 +271,13 @@ public class Robot extends TimedRobot {
         inAuto = false;
         shooter.hoodSolenoid.set(DoubleSolenoid.Value.kForward);
         LimeLight.getInstance().turnOn();
-
+        startingYaw = (int)gyro.getYaw();
     }
 
     @Override
     public void teleopPeriodic() {
-
+        System.out.println("Pitch: " + gyro.getPitch());
         LimeLight.getInstance().turnOn();
-        LimeLight.getInstance().setPipeline(1.0);
         if (LimeLight.getInstance().getTV() > 0){
             System.out.println(LimeLight.getInstance().getDistanceFromTarget() + " inches away from the target");
         }
@@ -363,6 +362,24 @@ public class Robot extends TimedRobot {
         //makes sure the hopper that can't be stopper'd gets stopper'd
         if (!opJoystick.getRawButton(4) && !opJoystick.getRawButton(3) && !opJoystick.getRawButton(6)){
             hopperStopper.set(DoubleSolenoid.Value.kForward);
+        }
+        
+        // toggles the pipeline between apriltags and limelight
+        if (driveJoystick.getRawButtonPressed(6)){
+            LimeLight.getInstance().togglePipeline();
+        }
+
+        // spinny :)
+        if (driveJoystick.getRawButton(7)){
+            driveTrain.setWantedState(DriveState.SPINNING);
+        }
+
+        if (driveJoystick.getRawButtonReleased(7)){
+            driveTrain.setWantedState(DriveState.MANUAL);
+        }
+
+        if (driveJoystick.getRawButtonPressed(8)){
+            startingYaw = (int)gyro.getYaw();
         }
 
         if (Constants.theRobotIsJustADrivetrainAndNothingMore){

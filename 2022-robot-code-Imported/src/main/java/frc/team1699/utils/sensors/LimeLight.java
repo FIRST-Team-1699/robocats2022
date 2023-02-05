@@ -49,6 +49,15 @@ public class LimeLight {
         table.getEntry("pipeline").setNumber(index);
     }
 
+    public void togglePipeline(){
+        double lastPipeline = table.getEntry("pipeline").getDouble(0.0);
+        if (lastPipeline == 0.0){
+            table.getEntry("pipeline").setNumber(1.0);
+        } else {
+            table.getEntry("pipeline").setNumber(0.0);
+        }
+    }
+    
     public double getDistanceFromTarget(){
         double targetOffsetAngle_Vertical = getTY();
         double limelightMountAngle = 47.0;

@@ -35,8 +35,10 @@ public class DriveTrain {
 
     //aiming constants
     //final double kSteer = 0.05; THE ORIGINAL VALUE
-    final double kSteer = 0.035;
-    final double kSteerI = 0.02;
+    final double kSteerP = 0.035;
+    // .01 works probably or lower
+    final double kSteerI = 0.04;
+    final double kSteerD = 0.005;
     final double kDrive = 0.06;
 
     double autoFwdDemand = 0.0;
@@ -45,6 +47,11 @@ public class DriveTrain {
     private AHRS gyro;
     private PIDController driveToTargetLoop;
     private PIDController autoAimLoop;
+    private PIDController autoBalanceLoop;
+
+    final double kBalanceP = .025;
+    final double kBalanceI = 0;
+    final double kBalanceD = 0.002;
     // balancing stuff
     private int balancingTicks = 0;
     private double balancingSpeed = 0.0;
@@ -68,7 +75,10 @@ public class DriveTrain {
         driveToTargetLoop = new PIDController(-1.0/60.0, 0, 0);
         driveToTargetLoop.setTolerance(3.0);
 
-        autoAimLoop = new PIDController(kSteer, kSteerI, 0);
+        autoAimLoop = new PIDController(kSteerP, kSteerI, kSteerD);
+
+        autoBalanceLoop = new PIDController(kBalanceP, kBalanceI, kBalanceD);
+        autoBalanceLoop.setTolerance(1, .325);
 
         this.portDrive1 = portDrive1;
         this.portDrive2 = portDrive2;
@@ -170,27 +180,17 @@ public class DriveTrain {
                 //     runArcadeDrive(0, 0);
                 //     System.out.println("balanced i hope");
                 // }
-                double turnSpeed;
-                if (!(Math.abs((int) gyro.getYaw() - Robot.startingYaw) < 3)){
-                    turnSpeed = .3;
-                    if (gyro.getYaw() < 0){
-                        turnSpeed = -turnSpeed;
-                    }
-                    System.out.println("Trying to turn");
-                } else {
-                    turnSpeed = 0;
-                }
-                double pitch = gyro.getPitch();
-                pitch -= 4.0;
-                double balSpeed = -pitch * 0.4;
-                if(Math.abs(balSpeed) >= 0.325) {
-                    balSpeed = balSpeed / Math.abs(balSpeed) * 0.325;
-                }
+                // pitch correcting for inaccuracies
+                double pitch = gyro.getPitch() - 4;
+                double balSpeed = autoBalanceLoop.calculate(pitch);
+                // if(Math.abs(balSpeed) >= 0.325) {
+                //     balSpeed = balSpeed / Math.abs(balSpeed) * 0.325;
+                // }
                 if(pitch < 3 && pitch > -3) {
-                    runArcadeDrive(turnSpeed, 0);
+                    runArcadeDrive(0, 0);
                 } else {
                     System.out.println(balSpeed);
-                    runArcadeDrive(turnSpeed, balSpeed);
+                    runArcadeDrive(0, balSpeed);
                 }
                 System.out.println(gyro.getYaw());
                 break;
@@ -199,6 +199,9 @@ public class DriveTrain {
                     runArcadeDrive(0, driveToTargetLoop.calculate(LimeLight.getInstance().getDistanceFromTarget(), 45.0));
                     System.out.println(driveToTargetLoop.calculate(LimeLight.getInstance().getDistanceFromTarget(), 45.0));
                 }
+                break;
+            case SPINNING:
+                runArcadeDrive(.8, 0);
                 break;
             default:
                 break;
@@ -257,6 +260,7 @@ public class DriveTrain {
         GOAL_TRACKING,
         AUTONOMOUS,
         BALANCING,
-        POSITIONING
+        POSITIONING,
+        SPINNING
     }
 }
