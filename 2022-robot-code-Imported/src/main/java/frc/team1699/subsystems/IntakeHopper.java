@@ -8,6 +8,9 @@ public class IntakeHopper implements Subsystem {
     // originally was tuned to -0.63 with floppy mc flopershaft
     public static final double kIntakeSpeed = -0.5;
 
+    // alt value for the hopper during shooting
+    public static final double kHopSpeed = -0.63;
+
     //Start the system in an uninitialized state and set a wanted state
     private IntakeStates currentState = null;
     private IntakeStates wantedState;
@@ -50,7 +53,7 @@ public class IntakeHopper implements Subsystem {
 
             //if u want the hopper to run while the intake arm is up (indexing i guess??)
             solenoid.set(DoubleSolenoid.Value.kReverse);
-            speedController.set(TalonSRXControlMode.PercentOutput, kIntakeSpeed);
+            speedController.set(TalonSRXControlMode.PercentOutput, kHopSpeed);
 
             currentState = wantedState;
 

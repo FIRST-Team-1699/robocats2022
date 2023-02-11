@@ -365,9 +365,9 @@ public class Robot extends TimedRobot {
         }
         
         // toggles the pipeline between apriltags and limelight
-        // if (driveJoystick.getRawButtonPressed(6)){
-        //     LimeLight.getInstance().togglePipeline();
-        // }
+        if (driveJoystick.getRawButtonPressed(6)){
+            LimeLight.getInstance().togglePipeline();
+        }
 
         // spinny :)
         if (driveJoystick.getRawButton(7)){

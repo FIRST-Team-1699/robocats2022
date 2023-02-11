@@ -34,11 +34,10 @@ public class DriveTrain {
     public boolean aligned = false;
 
     //aiming constants
-    //final double kSteer = 0.05; THE ORIGINAL VALUE
-    final double kSteerP = 0.035;
-    // .01 works probably or lower
-    final double kSteerI = 0.04;
-    final double kSteerD = 0.005;
+    final double kSteerP = 0.025;
+    final double kSteerI = 0.03;
+    final double kSteerD = 0.0005;
+
     final double kDrive = 0.06;
 
     double autoFwdDemand = 0.0;
