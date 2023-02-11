@@ -51,10 +51,12 @@ public class DriveTrain {
     // P = .025, I = 0, D = .002
     final double kBalanceP = .025;
     final double kBalanceI = 0;
-    final double kBalanceD = 0.002;
+    final double kBalanceD = 0.001;
     // balancing stuff
     private int balancingTicks = 0;
     private double balancingSpeed = 0.0;
+
+    public boolean isBalanced = false;
 
     /**
      * yuh i'ssa drivetrain

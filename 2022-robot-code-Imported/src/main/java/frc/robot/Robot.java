@@ -37,7 +37,6 @@ import com.kauailabs.navx.frc.AHRS;
 
 public class Robot extends TimedRobot {
 
-    
     private AHRS gyro;
     private Joystick driveJoystick, opJoystick;
     public PneumaticsModuleType CTREPCM = PneumaticsModuleType.CTREPCM;
@@ -75,7 +74,6 @@ public class Robot extends TimedRobot {
 
     @Override
     public void robotInit() {
-
         gyro = new AHRS();
         //Setup joystick
         driveJoystick = new Joystick(0);
@@ -276,6 +274,13 @@ public class Robot extends TimedRobot {
 
     @Override
     public void teleopPeriodic() {
+        double pitch = gyro.getPitch() - 4;
+        if(pitch < 3 && pitch > -3) {
+            driveTrain.isBalanced = true;
+        } else {
+            driveTrain.isBalanced = false;
+        }
+        SmartDashboard.putBoolean("Is balanced", driveTrain.isBalanced);
         System.out.println("Pitch: " + gyro.getPitch());
         LimeLight.getInstance().turnOn();
         if (LimeLight.getInstance().getTV() > 0){
