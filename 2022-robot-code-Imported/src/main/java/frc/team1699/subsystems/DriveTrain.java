@@ -49,6 +49,7 @@ public class DriveTrain {
     private PIDController autoAimLoop;
     private PIDController autoBalanceLoop;
 
+    // P = .025, I = 0, D = .002
     final double kBalanceP = .025;
     final double kBalanceI = 0;
     final double kBalanceD = 0.002;
@@ -166,33 +167,18 @@ public class DriveTrain {
                 runArcadeDrive(autoTurnDemand, autoFwdDemand);
             break;
             case BALANCING:
-                // double pitch = gyro.getPitch();
-                // pitch -= 4.0;
-                // if (pitch > 2.5){ // distance from balanced is 5
-                //     balancingSpeed = -0.3;
-                //     runArcadeDrive(0, balancingSpeed);
-                //     System.out.println("balancing backwards");
-                // } else if(pitch < -2.5){
-                //     balancingSpeed = 0.3;
-                //     runArcadeDrive(0, balancingSpeed);
-                //     System.out.println("balancing forwards");
-                // } else {
-                //     runArcadeDrive(0, 0);
-                //     System.out.println("balanced i hope");
-                // }
-                // pitch correcting for inaccuracies
+                //does PID things
                 double pitch = gyro.getPitch() - 4;
                 double balSpeed = autoBalanceLoop.calculate(pitch);
-                // if(Math.abs(balSpeed) >= 0.325) {
-                //     balSpeed = balSpeed / Math.abs(balSpeed) * 0.325;
-                // }
+
+                // make sure it aint balanced
                 if(pitch < 3 && pitch > -3) {
                     runArcadeDrive(0, 0);
                 } else {
                     System.out.println(balSpeed);
                     runArcadeDrive(0, balSpeed);
                 }
-                System.out.println(gyro.getYaw());
+                // System.out.println(gyro.getYaw());
                 break;
             case POSITIONING:
                 if (LimeLight.getInstance().getTV() > 0){

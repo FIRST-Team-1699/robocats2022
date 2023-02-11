@@ -342,22 +342,22 @@ public class Robot extends TimedRobot {
         }
 
         // BALANCING
-        if (driveJoystick.getRawButton(11)){
-            driveTrain.setWantedState(DriveState.BALANCING);
-        }
+        // if (driveJoystick.getRawButton(11)){
+        //     driveTrain.setWantedState(DriveState.BALANCING);
+        // }
 
-        if (driveJoystick.getRawButtonReleased(11)){
-            driveTrain.setWantedState(DriveState.MANUAL);
-        }
+        // if (driveJoystick.getRawButtonReleased(11)){
+        //     driveTrain.setWantedState(DriveState.MANUAL);
+        // }
 
         // POSITIONING FROM APRILTAG
-        if (driveJoystick.getRawButton(12)){
-            driveTrain.setWantedState(DriveState.POSITIONING);
-        }
+        // if (driveJoystick.getRawButton(12)){
+        //     driveTrain.setWantedState(DriveState.POSITIONING);
+        // }
         
-        if (driveJoystick.getRawButtonReleased(12)){
-            driveTrain.setWantedState(DriveState.MANUAL);
-        }
+        // if (driveJoystick.getRawButtonReleased(12)){
+        //     driveTrain.setWantedState(DriveState.MANUAL);
+        // }
 
         //makes sure the hopper that can't be stopper'd gets stopper'd
         if (!opJoystick.getRawButton(4) && !opJoystick.getRawButton(3) && !opJoystick.getRawButton(6)){
@@ -365,9 +365,9 @@ public class Robot extends TimedRobot {
         }
         
         // toggles the pipeline between apriltags and limelight
-        if (driveJoystick.getRawButtonPressed(6)){
-            LimeLight.getInstance().togglePipeline();
-        }
+        // if (driveJoystick.getRawButtonPressed(6)){
+        //     LimeLight.getInstance().togglePipeline();
+        // }
 
         // spinny :)
         if (driveJoystick.getRawButton(7)){

@@ -5,8 +5,8 @@ import com.ctre.phoenix.motorcontrol.can.TalonSRX;
 import com.ctre.phoenix.motorcontrol.TalonSRXControlMode;
 
 public class IntakeHopper implements Subsystem {
-
-    public static final double kIntakeSpeed = -0.63;
+    // originally was tuned to -0.63 with floppy mc flopershaft
+    public static final double kIntakeSpeed = -0.5;
 
     //Start the system in an uninitialized state and set a wanted state
     private IntakeStates currentState = null;
