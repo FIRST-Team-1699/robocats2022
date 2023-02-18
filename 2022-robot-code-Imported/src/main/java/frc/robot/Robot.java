@@ -6,8 +6,10 @@ import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.DoubleSolenoid;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Filesystem;
+import edu.wpi.first.wpilibj.I2C;
 import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import edu.wpi.first.wpilibj.util.Color;
 import edu.wpi.first.cameraserver.CameraServer;
 import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableEntry;
@@ -31,8 +33,14 @@ import com.ctre.phoenix.motorcontrol.NeutralMode;
 import com.ctre.phoenix.motorcontrol.can.TalonFX;
 import frc.team1699.utils.sensors.LimitSwitch;
 import frc.team1699.utils.sensors.LimeLight;
+import frc.team1699.utils.LEDController;
 import frc.team1699.utils.Utils;
+import frc.team1699.utils.LEDController.LEDColors;
+
 import com.kauailabs.navx.frc.AHRS;
+import com.revrobotics.ColorMatch;
+import com.revrobotics.ColorMatchResult;
+import com.revrobotics.ColorSensorV3;
 
 
 public class Robot extends TimedRobot {
@@ -72,8 +80,23 @@ public class Robot extends TimedRobot {
     public static int startingYaw;
     public static int testYaw = 0;
 
+    // LEDS
+    private LEDController tempController;
+    public static ColorSensorV3 colorSensor = new ColorSensorV3(I2C.Port.kOnboard);
+    public static ColorMatch colorMatcher = new ColorMatch();
+    private final Color kBlueTarget = new Color(0.15, 0.45, 0.34);
+    private final Color kRedTarget = new Color(0.4, 0.4, 0.2);
+    public static ColorMatchResult detectedColor;
+
     @Override
     public void robotInit() {
+        tempController = new LEDController(44, 1);
+        tempController.start();
+
+        colorMatcher.addColorMatch(kBlueTarget);
+        colorMatcher.addColorMatch(kRedTarget);
+        colorMatcher.setConfidenceThreshold(.9);
+
         gyro = new AHRS();
         //Setup joystick
         driveJoystick = new Joystick(0);
@@ -145,6 +168,15 @@ public class Robot extends TimedRobot {
     @Override
     public void robotPeriodic() {
       //  System.out.printf("Port 0: %b ---- Port 2: %b\n", testBreak1.get(), testBreak2.get());
+      detectedColor = colorMatcher.matchClosestColor(colorSensor.getColor());
+      if(detectedColor.color == kBlueTarget && detectedColor.confidence > .9) {
+        tempController.solidColor(LEDColors.BLUE);
+      } else if(detectedColor.color == kRedTarget && detectedColor.confidence > .9) {
+        tempController.solidColor(LEDColors.RED);
+      } else {
+        tempController.rainbow();
+      }
+      System.out.println(detectedColor.confidence);
     }
 
     @Override
