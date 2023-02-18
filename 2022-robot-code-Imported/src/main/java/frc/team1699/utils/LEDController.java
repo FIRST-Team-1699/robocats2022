@@ -2,6 +2,7 @@ package frc.team1699.utils;
 
 import edu.wpi.first.wpilibj.AddressableLED;
 import edu.wpi.first.wpilibj.AddressableLEDBuffer;
+import frc.robot.Robot;
 
 public class LEDController {
     private static int rainbowFirstPixelHue = 50;
@@ -11,10 +12,10 @@ public class LEDController {
     private AddressableLED leds;
     private AddressableLEDBuffer ledBuffer;
 
-    public LEDController(int length, int port) {
+    public LEDController(int ledLength, int port) {
         leds = new AddressableLED(port);
-        ledBuffer = new AddressableLEDBuffer(length);
-        leds.setLength(ledBuffer.getLength());
+        ledBuffer = new AddressableLEDBuffer(ledLength);
+        leds.setLength(Robot.ledLength);
     }
 
     public void start() {
@@ -27,16 +28,16 @@ public class LEDController {
 
     public void baconColors() {
         if(baconIterations % 20 > 10) {
-            for(int i = 0; i < ledBuffer.getLength(); i += 2) {
+            for(int i = 0; i < Robot.ledLength; i += 2) {
                 ledBuffer.setRGB(i, 0, 0, 255);
-                if(i + 1 < ledBuffer.getLength()) {
+                if(i + 1 < Robot.ledLength) {
                     ledBuffer.setRGB(i + 1, 250, 220, 0);
                 }
             }
         } else {
-            for(int i = 0; i < ledBuffer.getLength(); i += 2) {
+            for(int i = 0; i < Robot.ledLength; i += 2) {
                 ledBuffer.setRGB(i, 250, 220, 0);
-                if(i + 1 < ledBuffer.getLength()) {
+                if(i + 1 < Robot.ledLength) {
                     ledBuffer.setRGB(i + 1, 0, 0, 255);
                 }
             }
@@ -46,8 +47,8 @@ public class LEDController {
     }
 
     public void rainbow() {
-        for (int i = 0; i < ledBuffer.getLength(); i++) {
-            final int hue = (rainbowFirstPixelHue + (i * 180 / ledBuffer.getLength())) % 180;
+        for (int i = 0; i < Robot.ledLength; i++) {
+            final int hue = (rainbowFirstPixelHue + (i * 180 / Robot.ledLength)) % 180;
             ledBuffer.setHSV(i, hue, 255, 128);
         }
         rainbowFirstPixelHue += 3;
@@ -91,7 +92,7 @@ public class LEDController {
             break;
             
         }
-        for (int i = 0; i < ledBuffer.getLength(); i++) {
+        for (int i = 0; i < Robot.ledLength; i++) {
             ledBuffer.setRGB(i, wantedR, wantedG, wantedB);
         }
         leds.setData(ledBuffer);
@@ -99,32 +100,32 @@ public class LEDController {
 
     public void AMERICA() {
         if(americaIterations % 30 < 10) {
-            for(int i = 0; i < ledBuffer.getLength(); i += 3) {
+            for(int i = 0; i < Robot.ledLength; i += 3) {
                 ledBuffer.setRGB(i, 255, 0, 0);
-                if(i + 1 < ledBuffer.getLength()) {
+                if(i + 1 < Robot.ledLength) {
                     ledBuffer.setRGB(i + 1, 255, 255, 255);
                 }
-                if(i + 2 < ledBuffer.getLength()) {
+                if(i + 2 < Robot.ledLength) {
                     ledBuffer.setRGB(i + 2, 0, 0, 255);
                 }
             }
         } else if(americaIterations % 30 < 20) {
-            for(int i = 0; i < ledBuffer.getLength(); i += 3) {
+            for(int i = 0; i < Robot.ledLength; i += 3) {
                 ledBuffer.setRGB(i, 255, 255, 255);
-                if(i + 1 < ledBuffer.getLength()) {
+                if(i + 1 < Robot.ledLength) {
                     ledBuffer.setRGB(i + 1, 0, 0, 255);
                 }
-                if(i + 2 < ledBuffer.getLength()) {
+                if(i + 2 < Robot.ledLength) {
                     ledBuffer.setRGB(i + 2, 255, 0, 0);
                 }
             }
         } else {
-            for(int i = 0; i < ledBuffer.getLength(); i += 3) {
+            for(int i = 0; i < Robot.ledLength; i += 3) {
                 ledBuffer.setRGB(i, 0, 0, 255);
-                if(i + 1 < ledBuffer.getLength()) {
+                if(i + 1 < Robot.ledLength) {
                     ledBuffer.setRGB(i + 1, 255, 0, 0);
                 }
-                if(i + 2 < ledBuffer.getLength()) {
+                if(i + 2 < Robot.ledLength) {
                     ledBuffer.setRGB(i + 2, 255, 255, 255);
                 }
             }
@@ -134,7 +135,7 @@ public class LEDController {
     }
 
     public void redGold() {
-        for(int i = 0; i < ledBuffer.getLength(); i += 4) {
+        for(int i = 0; i < Robot.ledLength; i += 4) {
             ledBuffer.setRGB(i, 255, 0, 0);
             ledBuffer.setRGB(i + 1, 255, 0, 0);
             ledBuffer.setRGB(i + 2, 255, 0, 0);

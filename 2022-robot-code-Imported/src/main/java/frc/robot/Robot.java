@@ -87,10 +87,11 @@ public class Robot extends TimedRobot {
     private final Color kBlueTarget = new Color(0.15, 0.45, 0.34);
     private final Color kRedTarget = new Color(0.4, 0.4, 0.2);
     public static ColorMatchResult detectedColor;
+    public static final int ledLength = 44;
 
     @Override
     public void robotInit() {
-        tempController = new LEDController(44, 1);
+        tempController = new LEDController(ledLength, 1);
         tempController.start();
 
         colorMatcher.addColorMatch(kBlueTarget);

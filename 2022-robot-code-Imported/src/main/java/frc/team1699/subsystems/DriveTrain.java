@@ -56,6 +56,8 @@ public class DriveTrain {
     private int balancingTicks = 0;
     private double balancingSpeed = 0.0;
 
+    private final double deadzone = .3;
+
     public boolean isBalanced = false;
 
     /**
@@ -197,13 +199,16 @@ public class DriveTrain {
 
     //WPILib Differential Drive
     public void runArcadeDrive(double rotate, double throttle) {
+        System.out.println(rotate);
         double portOutput = 0.0;
         double starOutput = 0.0;
-
+        if (Math.abs(rotate) <= deadzone && systemState == DriveState.MANUAL){
+            rotate = 0;   
+        }
         //TODO add deadband
         rotate = Math.copySign(rotate * rotate, rotate);
         throttle = Math.copySign(throttle * throttle, throttle);
-
+        
         double maxInput = Math.copySign(Math.max(Math.abs(rotate), Math.abs(throttle)), rotate);
 
         if (rotate >= 0.0) {
