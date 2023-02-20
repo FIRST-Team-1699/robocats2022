@@ -56,6 +56,10 @@ public class LEDController {
         leds.setData(ledBuffer);
     }
 
+    public void bus() {
+        
+    }
+
     public void solidColor(LEDColors targetColor) {
         int wantedR = 0;
         int wantedG = 0;

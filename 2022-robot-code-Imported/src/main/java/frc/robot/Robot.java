@@ -16,6 +16,7 @@ import edu.wpi.first.networktables.NetworkTableEntry;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.wpilibj.PneumaticsModuleType;
 import edu.wpi.first.wpilibj.TimedRobot;
+import edu.wpi.first.wpilibj.GenericHID.RumbleType;
 import frc.team1699.subsystems.BallProcessor;
 import frc.team1699.subsystems.BallProcessor.BallProcessState;
 import frc.team1699.subsystems.AutoBallProcessor;
@@ -38,6 +39,9 @@ import frc.team1699.utils.Utils;
 import frc.team1699.utils.LEDController.LEDColors;
 
 import com.kauailabs.navx.frc.AHRS;
+import com.pathplanner.lib.PathConstraints;
+import com.pathplanner.lib.PathPlanner;
+import com.pathplanner.lib.PathPlannerTrajectory;
 import com.revrobotics.ColorMatch;
 import com.revrobotics.ColorMatchResult;
 import com.revrobotics.ColorSensorV3;
@@ -162,6 +166,7 @@ public class Robot extends TimedRobot {
 
         LimeLight.getInstance().turnOn();     
 
+        driveTrain.generateTrajectory();
     }
 
     DigitalInput testBreak1 = new DigitalInput(0);
@@ -177,33 +182,34 @@ public class Robot extends TimedRobot {
       } else {
         tempController.rainbow();
       }
-      System.out.println(detectedColor.confidence);
+      //System.out.println(detectedColor.confidence);
     }
 
     @Override
     public void autonomousInit() {
-        startingYaw = (int)gyro.getYaw();
-        System.out.println(startingYaw);
-        if (do2BallAuto){
-            setNeutralMode(NeutralMode.Brake);
-            portDriveMaster.setSelectedSensorPosition(0.0);
-            moveDone = false;
-            linedUp = false;
-            inAuto = true;
-            LimeLight.getInstance().turnOff();
+        PathPlannerTrajectory examplePath = PathPlanner.loadPath("New New Path", new PathConstraints(4, 3));
+        // startingYaw = (int)gyro.getYaw();
+        // System.out.println(startingYaw);
+        // if (do2BallAuto){
+        //     setNeutralMode(NeutralMode.Brake);
+        //     portDriveMaster.setSelectedSensorPosition(0.0);
+        //     moveDone = false;
+        //     linedUp = false;
+        //     inAuto = true;
+        //     LimeLight.getInstance().turnOff();
 
-            // shooter.toggleSolenoid(shooterAngleSolenoid);
+        //     // shooter.toggleSolenoid(shooterAngleSolenoid);
 
-            shooter.deployHopperStopper();
+        //     shooter.deployHopperStopper();
 
-            shooter.hoodSolenoid.set(DoubleSolenoid.Value.kForward); // hood up
-            System.out.println("hood up in auto (init one)");
-            driveTrain.setWantedState(DriveState.AUTONOMOUS);
-            autoBallProcessor.setProcessorState(AutoBallProcessState.COLLECTING);
-        } else {
-            autoBallProcessor.setProcessorState(AutoBallProcessState.LOADED);
-            driveTrain.setWantedState(DriveState.AUTONOMOUS);
-        }
+        //     shooter.hoodSolenoid.set(DoubleSolenoid.Value.kForward); // hood up
+        //     System.out.println("hood up in auto (init one)");
+        //     driveTrain.setWantedState(DriveState.AUTONOMOUS);
+        //     autoBallProcessor.setProcessorState(AutoBallProcessState.COLLECTING);
+        // } else {
+        //     autoBallProcessor.setProcessorState(AutoBallProcessState.LOADED);
+        //     driveTrain.setWantedState(DriveState.AUTONOMOUS);
+        // }
     }
 
     private boolean onRamp = false;
@@ -280,12 +286,12 @@ public class Robot extends TimedRobot {
             } else {
                 turnVal = 0;
             }
-            System.out.println("Gyro Pitch: " + gyro.getPitch());
+            //System.out.println("Gyro Pitch: " + gyro.getPitch());
             if (gyro.getPitch() - 4.0 > 12.0){
                 onRamp = true;
                 driveTrain.setWantedState(DriveState.BALANCING);
                 // do autobalance
-                System.out.println("i wannaa do autobalance");
+                //System.out.println("i wannaa do autobalance");
             } else if (!onRamp) {
                 driveTrain.setAutoDemand(-.45, turnVal);
             }
@@ -307,6 +313,9 @@ public class Robot extends TimedRobot {
 
     @Override
     public void teleopPeriodic() {
+
+        
+
         double pitch = gyro.getPitch() - 4;
         if(pitch < 3 && pitch > -3) {
             driveTrain.isBalanced = true;
@@ -427,7 +436,7 @@ public class Robot extends TimedRobot {
         ballProcessor.update();
         shooter.update();
         driveTrain.update();
-        
+        driveJoystick.setRumble(RumbleType.kBothRumble, 0);
       }
 
     @Override

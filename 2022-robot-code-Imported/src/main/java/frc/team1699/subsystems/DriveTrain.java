@@ -6,6 +6,9 @@ import frc.team1699.utils.sensors.LimeLight;
 import frc.team1699.utils.Utils;
 import com.ctre.phoenix.motorcontrol.can.TalonFX;
 import com.ctre.phoenix.music.Orchestra; //NO I WILL NOT DELETE THIS IMPORT, IT IS IMPORTANT TO ME
+
+import java.util.ArrayList;
+
 import com.ctre.phoenix.motorcontrol.FollowerType;
 import com.ctre.phoenix.motorcontrol.TalonFXControlMode;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -14,6 +17,16 @@ import frc.team1699.Constants;
 import frc.robot.Robot;
 import com.kauailabs.navx.frc.AHRS;
 import edu.wpi.first.math.controller.PIDController;
+import edu.wpi.first.math.controller.RamseteController;
+import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Translation2d;
+import edu.wpi.first.math.kinematics.ChassisSpeeds;
+import edu.wpi.first.math.kinematics.DifferentialDriveKinematics;
+import edu.wpi.first.math.trajectory.Trajectory;
+import edu.wpi.first.math.trajectory.TrajectoryConfig;
+import edu.wpi.first.math.trajectory.TrajectoryGenerator;
+import edu.wpi.first.math.util.Units;
 
 public class DriveTrain {
 
@@ -23,7 +36,7 @@ public class DriveTrain {
     private DriveState systemState, wantedState;
     private double portCommand, starCommand;
 
-
+    private DifferentialDriveKinematics kinematics;
 
 
     private final int kRampTotal = 25; // in ticks, 50 ticks in a second, do the math u lazy dummy
@@ -60,6 +73,8 @@ public class DriveTrain {
 
     public boolean isBalanced = false;
 
+    private RamseteController ramsetinator;
+
     /**
      * yuh i'ssa drivetrain
      * @param portDrive1
@@ -75,6 +90,8 @@ public class DriveTrain {
                       final Joystick joystick) {
 
         gyro = new AHRS();
+
+        kinematics = new DifferentialDriveKinematics(Units.inchesToMeters(27.0));
         
         driveToTargetLoop = new PIDController(-1.0/60.0, 0, 0);
         driveToTargetLoop.setTolerance(3.0);
@@ -103,10 +120,39 @@ public class DriveTrain {
         this.joystick = joystick;
 
         wantedState = DriveState.MANUAL;
+        ramsetinator = new RamseteController();
     }
 
-    public void update() {
+    private Trajectory trajectory;
+    public void generateTrajectory() {
 
+        // start and end waypoints
+        var startPoint = new Pose2d(0, 0,
+            Rotation2d.fromDegrees(90));
+        var endPoint = new Pose2d(0, 0.3,
+            Rotation2d.fromDegrees(90));
+    
+        // // list of other waypoints
+        var interiorWaypoints = new ArrayList<Translation2d>();
+        // interiorWaypoints.add(new Translation2d(Units.feetToMeters(14.54), Units.feetToMeters(23.23)));
+        // interiorWaypoints.add(new Translation2d(Units.feetToMeters(21.04), Units.feetToMeters(18.23)));
+
+    
+        TrajectoryConfig config = new TrajectoryConfig(Units.feetToMeters(12), Units.feetToMeters(12));
+        config.setReversed(true);
+    
+        trajectory = TrajectoryGenerator.generateTrajectory(
+            startPoint,
+            interiorWaypoints,
+            endPoint,
+            config);
+        
+      }
+
+
+
+    public void update() {
+        // System.out.println(trajectory.toString());
         // System.out.println("Gyro \"pitch\": " + ((int) (gyro.getPitch())));
         // System.out.println("Gyro \"yaw\": " + ((int) (gyro.getYaw())));
         // System.out.println("Gyro \"roll\": " + ((int) gyro.getRoll()));
@@ -146,7 +192,7 @@ public class DriveTrain {
         switch (systemState) {
             case MANUAL:
                 runArcadeDrive(joystick.getX(), -joystick.getY());
-                System.out.println("manual");
+                //System.out.println("manual");
                 break;
             case GOAL_TRACKING:
 
@@ -178,7 +224,7 @@ public class DriveTrain {
                 if(pitch < 3 && pitch > -3) {
                     runArcadeDrive(0, 0);
                 } else {
-                    System.out.println(balSpeed);
+                    //System.out.println(balSpeed);
                     runArcadeDrive(0, balSpeed);
                 }
                 // System.out.println(gyro.getYaw());
@@ -186,11 +232,21 @@ public class DriveTrain {
             case POSITIONING:
                 if (LimeLight.getInstance().getTV() > 0){
                     runArcadeDrive(0, driveToTargetLoop.calculate(LimeLight.getInstance().getDistanceFromTarget(), 45.0));
-                    System.out.println(driveToTargetLoop.calculate(LimeLight.getInstance().getDistanceFromTarget(), 45.0));
+                    //System.out.println(driveToTargetLoop.calculate(LimeLight.getInstance().getDistanceFromTarget(), 45.0));
                 }
                 break;
             case SPINNING:
                 runArcadeDrive(.8, 0);
+                break;
+            case SPLINING:
+                Trajectory.State goal = trajectory.sample(3.4); // sample the trajectory at 3.4 seconds from the beginning
+                //ChassisSpeeds adjustedSpeeds = ramsetinator.calculate(currentRobotPose, goal); TODO make currentrobot position updating
+                //https://docs.wpilib.org/en/stable/docs/software/advanced-controls/trajectories/ramsete.html
+            
+                // the stuff for spline following
+                // and kinematics calculations
+                // goes in here
+
                 break;
             default:
                 break;
@@ -199,7 +255,7 @@ public class DriveTrain {
 
     //WPILib Differential Drive
     public void runArcadeDrive(double rotate, double throttle) {
-        System.out.println(rotate);
+        //System.out.println(rotate);
         double portOutput = 0.0;
         double starOutput = 0.0;
         if (Math.abs(rotate) <= deadzone && systemState == DriveState.MANUAL){
@@ -253,6 +309,7 @@ public class DriveTrain {
         AUTONOMOUS,
         BALANCING,
         POSITIONING,
-        SPINNING
+        SPINNING,
+        SPLINING
     }
 }
